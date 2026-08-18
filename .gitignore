@@ -1,0 +1,12 @@
+# Runtime artifacts (regenerated on container boot)
+_build.log
+*.log
+src/data/
+src/store/uploads/*
+!src/store/uploads/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

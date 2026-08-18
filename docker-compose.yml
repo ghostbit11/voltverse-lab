@@ -1,0 +1,10 @@
+# VoltVerse Store — one self-contained vulnerable web app (VoltMart-style).
+#   docker compose up -d --build   →   http://localhost:8100
+services:
+  store:
+    build: .
+    image: voltverse/store:1.0
+    container_name: voltverse-store
+    ports:
+      - "8100:80"
+    restart: unless-stopped
