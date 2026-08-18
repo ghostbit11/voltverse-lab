@@ -8,13 +8,13 @@
 ![PHP](https://img.shields.io/badge/PHP-8.2-777bb4?style=flat-square&logo=php&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ed?style=flat-square&logo=docker&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-embedded-003b57?style=flat-square&logo=sqlite&logoColor=white)
-![Challenges](https://img.shields.io/badge/challenges-42-818cf8?style=flat-square)
+![Challenges](https://img.shields.io/badge/challenges-48-818cf8?style=flat-square)
 ![OWASP](https://img.shields.io/badge/OWASP-Web%20%7C%20API%20%7C%20LLM%20Top%2010-34d399?style=flat-square)
 ![Status](https://img.shields.io/badge/status-active-success?style=flat-square)
 
-**A self-hosted cyber range that looks like a real SaaS product — 8 realistic target apps, 42 hands-on challenges, and a full learning platform.**
+**A self-hosted cyber range that looks like a real SaaS product — 11 realistic target apps, 48 hands-on challenges, and a full learning platform.**
 
-[Quick start](#-quick-start) · [What's inside](#-whats-inside) · [Learning layer](#-learning-layer) · [Architecture](#-architecture) · [Difficulty](#-difficulty-levels)
+[Quick start](#-quick-start) · [What's inside](#-whats-inside) · [Challenge list](CHALLENGES.md) · [Learning layer](#-learning-layer) · [Architecture](#-architecture) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -51,7 +51,12 @@ The **first** account you register automatically becomes the **instructor**.
 | 📦 **VoltBook Microsite** | Client-side | reflected XSS · open redirect |
 | 🌐 **VoltCorp Website** | Server-side | path traversal / LFI · CSRF |
 | 🔌 **Voltmart REST API** | OWASP API Top 10 | BOLA · excessive data exposure · mass assignment · BFLA · broken auth |
+| 📡 **VoltData** (GraphQL) | GraphQL security | introspection exposure · BOLA · resolver SQL injection |
+| 🔑 **VoltConnect** (OAuth SSO) | OAuth 2.0 | `redirect_uri` open redirect · missing-`state` login CSRF |
+| 🧩 **VoltSync** | Deserialization | PHP object injection |
 | 🔗 **Campaigns** | Attack chains | multi-stage, cross-app kill chains |
+
+See **[CHALLENGES.md](CHALLENGES.md)** for the full, auto-generated list of all 48 challenges.
 
 ## 🧠 Learning layer
 
@@ -69,7 +74,7 @@ The **first** account you register automatically becomes the **instructor**.
 flowchart LR
     U([Trainee]) -->|login| P[VoltVerse Platform]
     P --> D[Dashboard / Challenges / Campaigns]
-    D --> T{{8 vulnerable target apps}}
+    D --> T{{11 vulnerable target apps}}
     T -->|exploit → VOLT flag| F[Flag engine]
     F --> S[(SQLite<br/>scores · solves · hints)]
     F --> L[Leaderboard / Profile]

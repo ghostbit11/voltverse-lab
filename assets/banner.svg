@@ -42,11 +42,11 @@
     </g>
     <g transform="translate(462,272)">
       <rect width="150" height="40" rx="20" fill="#818cf8" fill-opacity="0.12" stroke="#818cf8" stroke-opacity="0.4"/>
-      <text x="22" y="26" fill="#a5b4fc">42 challenges</text>
+      <text x="22" y="26" fill="#a5b4fc">48 challenges</text>
     </g>
     <g transform="translate(626,272)">
       <rect width="120" height="40" rx="20" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-opacity="0.4"/>
-      <text x="22" y="26" fill="#6ee7b7">8 apps</text>
+      <text x="22" y="26" fill="#6ee7b7">11 apps</text>
     </g>
     <g transform="translate(760,272)">
       <rect width="176" height="40" rx="20" fill="#fbbf24" fill-opacity="0.1" stroke="#fbbf24" stroke-opacity="0.4"/>

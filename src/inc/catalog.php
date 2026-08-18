@@ -50,6 +50,15 @@ function CATALOG(): array {
       ['api-mass','Mass assignment','Voltmart API','🔌','API logic','API6',3,300,'VOLT{api_mass_assignment_admin}','POST /users is_admin:1'],
       ['api-bfla','BFLA — admin function','Voltmart API','🔌','API access','API5',3,300,'VOLT{api_bfla_admin_function}','DELETE /users/{id}'],
       ['api-auth','Broken authentication','Voltmart API','🔌','API auth','API2',2,200,'VOLT{api_broken_auth}','GET /users, no key'],
+      // 📡 VoltData (GraphQL)
+      ['graphql-introspect','GraphQL introspection exposure','VoltData','📡','API data','API3',2,200,'VOLT{graphql_introspection_exposed}','Query __schema'],
+      ['graphql-bola','GraphQL BOLA (object level)','VoltData','📡','API access','API1',2,250,'VOLT{graphql_bola}','user(id: 2)'],
+      ['graphql-sqli','GraphQL resolver SQL injection','VoltData','📡','Injection','A03',3,350,'VOLT{graphql_injection}','products(filter: UNION)'],
+      // 🔑 VoltConnect (OAuth SSO)
+      ['oauth-redirect','OAuth redirect_uri open redirect','VoltConnect','🔑','Access control','A01',3,300,'VOLT{oauth_open_redirect}','authorize.php redirect_uri'],
+      ['oauth-state','OAuth missing state (login CSRF)','VoltConnect','🔑','CSRF','A01',2,250,'VOLT{oauth_missing_state}','callback.php, no state'],
+      // 🧩 VoltSync (deserialization)
+      ['deserial-poi','PHP object injection','VoltSync','🧩','Deserialization','A08',4,400,'VOLT{php_object_injection}','Import a crafted prefs blob'],
       // 🔗 Attack chains (cross-app campaigns)
       ['chain-account-takeover','Chain: Account Takeover','Campaigns','🔗','Attack chain','A01',4,500,'VOLT{chain_account_takeover}','Campaigns → complete all phases'],
       ['chain-bank-heist','Chain: The Bank Heist','Campaigns','🔗','Attack chain','A04',4,500,'VOLT{chain_bank_heist}','Campaigns → complete all phases'],
@@ -98,6 +107,21 @@ function leaderboard(int $n=20): array {
 }
 function player_rank(string $email): int {
     $lb = leaderboard(9999); foreach ($lb as $i=>$r) if ($r['email']===$email) return $i+1; return count($lb)+1;
+}
+function player_streak(string $email): int {
+    ensure_solves();
+    $st = db()->prepare("SELECT DISTINCT date(ts) d FROM solves WHERE player=? ORDER BY d DESC"); $st->execute([$email]);
+    $set = array_flip(array_column($st->fetchAll(PDO::FETCH_ASSOC),'d'));
+    if (!$set) return 0;
+    $cursor = date('Y-m-d');
+    if (!isset($set[$cursor])) { $cursor = date('Y-m-d', strtotime('-1 day')); if (!isset($set[$cursor])) return 0; }
+    $streak = 0;
+    while (isset($set[$cursor])) { $streak++; $cursor = date('Y-m-d', strtotime($cursor.' -1 day')); }
+    return $streak;
+}
+/* Deterministic "challenge of the day" — same for everyone on a given date. */
+function daily_challenge(): array {
+    $all = CATALOG(); return $all[(int)date('z') % count($all)];
 }
 function level_name(int $pts): string {
     return $pts>=3000?'Elite Hacker':($pts>=1500?'Hacker':($pts>=500?'Operator':'Recruit'));

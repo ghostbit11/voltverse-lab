@@ -37,6 +37,7 @@ head('Profile');
   <div class="b"><b class="gradtext"><?= $pts ?></b><span>POINTS</span></div>
   <div class="b"><b class="gradtext">#<?= $rank ?></b><span>RANK</span></div>
   <div class="b"><b class="gradtext"><?= $done ?>/<?= $total ?></b><span>SOLVED</span></div>
+  <div class="b"><b class="gradtext">🔥 <?= player_streak($u['email']) ?></b><span>DAY STREAK</span></div>
   <div class="b"><b class="gradtext"><?= $hintsUsed ?></b><span>HINTS USED</span></div>
 </div>
 
@@ -80,7 +81,8 @@ head('Profile');
     </div>
   </div>
 </div>
-<div style="margin-top:1rem"><button class="cta" onclick="window.print()">🖨 Print / Save certificate</button>
+<div style="margin-top:1rem"><a class="cta" href="/certificate.php">⬇ Download PDF certificate</a>
+  <button class="btn" style="margin-left:.5rem" onclick="window.print()">🖨 Print</button>
   <a class="btn" href="/leaderboard.php" style="margin-left:.5rem">View leaderboard →</a></div>
 <style>@media print{.nav,.cta,.btn,#bg,canvas{display:none!important}body{background:#fff}#cert{border-color:#0b1224}}</style>
 <?php foot();

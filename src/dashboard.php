@@ -9,7 +9,7 @@ $pts = player_points($u['email']); $rank = player_rank($u['email']);
 $pct = $total ? round(100*$done/$total) : 0;
 $deg = round($pct*3.6);
 
-$base = ['Voltmart'=>'/store/','Aurora Bank'=>'/bank/','VoltID'=>'/jwt/','Voltmart Copilot'=>'/ai/','VoltBook Microsite'=>'/product-site/','VoltCorp Website'=>'/corp/','Voltmart API'=>'/api/','Campaigns'=>'/campaigns.php'];
+$base = ['Voltmart'=>'/store/','Aurora Bank'=>'/bank/','VoltID'=>'/jwt/','Voltmart Copilot'=>'/ai/','VoltData'=>'/graphql/','VoltConnect'=>'/oauth/','VoltSync'=>'/deserial/','VoltBook Microsite'=>'/product-site/','VoltCorp Website'=>'/corp/','Voltmart API'=>'/api/','Campaigns'=>'/campaigns.php'];
 $per = []; foreach (CATALOG() as $c){ $per[$c[2]]=$per[$c[2]]??['icon'=>$c[3],'t'=>0,'s'=>0]; $per[$c[2]]['t']++; if(in_array($c[0],$solved,true))$per[$c[2]]['s']++; }
 
 $ach = [
@@ -31,7 +31,7 @@ head('Dashboard');
       <div class="b"><b class="gradtext"><?= $pts ?></b><span>POINTS</span></div>
       <div class="b"><b class="gradtext">#<?= $rank ?></b><span>RANK</span></div>
       <div class="b"><b class="gradtext"><?= $done ?>/<?= $total ?></b><span>SOLVED</span></div>
-      <div class="b"><b class="gradtext"><?= count($base) ?></b><span>APPS</span></div>
+      <div class="b"><b class="gradtext">🔥 <?= player_streak($u['email']) ?></b><span>DAY STREAK</span></div>
     </div>
     <div style="margin-top:1.2rem"><a class="cta" href="/challenges.php">View all challenges →</a>
       <button class="btn" style="margin-left:.5rem" onclick="startTour()">🎓 Take the tour</button></div>
@@ -41,6 +41,14 @@ head('Dashboard');
       <div style="width:130px;height:130px;border-radius:50%;background:#0a1020;display:grid;place-items:center">
         <div><div style="font-size:2rem;font-weight:900" class="gradtext"><?= $pct ?>%</div><div style="color:var(--muted);font-size:.72rem">COMPLETE</div></div></div></div>
   </div>
+</div>
+
+<?php $dc0 = daily_challenge(); $dcSolved = in_array($dc0[0],$solved,true); $dcHref = $base[$dc0[2]] ?? '#'; ?>
+<div class="panel fadeup" style="margin-top:1.6rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.05)">
+  <div><span class="eyebrow" style="color:#fbbf24">⭐ CHALLENGE OF THE DAY</span>
+    <h3 style="margin:.3rem 0"><?= $dc0[3] ?> <?= e($dc0[1]) ?> <?= $dcSolved?'<span style="color:var(--green);font-size:.9rem">✓ solved</span>':'' ?></h3>
+    <p style="color:var(--muted);margin:0"><?= e($dc0[2]) ?> · <?= e($dc0[4]) ?> · <b style="color:#fbbf24"><?= $dc0[7] ?> pts</b></p></div>
+  <a class="cta" href="<?= e($dcHref) ?>"><?= $dcSolved?'Revisit':'Attempt now' ?> →</a>
 </div>
 
 <h2 style="margin:2rem 0 1rem;font-size:1.4rem">Your targets</h2>

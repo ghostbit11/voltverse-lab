@@ -14,7 +14,7 @@ $wtEnabled = setting('walkthroughs_enabled','1')==='1';
 $showWt = $wtEnabled || is_instructor();   // instructor always sees them
 $showHints = setting('hints_enabled','1')==='1' || is_instructor();
 $dc = [1=>'#34d399',2=>'#fbbf24',3=>'#fb923c',4=>'#f87171'];
-$base = ['Voltmart'=>'/store/','Aurora Bank'=>'/bank/','VoltID'=>'/jwt/','Voltmart Copilot'=>'/ai/','VoltBook Microsite'=>'/product-site/','VoltCorp Website'=>'/corp/','Voltmart API'=>'/api/','Campaigns'=>'/campaigns.php'];
+$base = ['Voltmart'=>'/store/','Aurora Bank'=>'/bank/','VoltID'=>'/jwt/','Voltmart Copilot'=>'/ai/','VoltData'=>'/graphql/','VoltConnect'=>'/oauth/','VoltSync'=>'/deserial/','VoltBook Microsite'=>'/product-site/','VoltCorp Website'=>'/corp/','Voltmart API'=>'/api/','Campaigns'=>'/campaigns.php'];
 head('Challenges');
 ?>
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
