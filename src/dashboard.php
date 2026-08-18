@@ -43,6 +43,25 @@ head('Dashboard');
   </div>
 </div>
 
+<?php $myAssigned = assigned_ids($u['email']);
+if ($myAssigned): $adone = count(array_filter($myAssigned, fn($id)=>in_array($id,$solved,true))); ?>
+<div class="panel fadeup" style="margin-top:1.6rem;border-color:var(--accent-line)">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem">
+    <div><span class="eyebrow">Assigned to you</span>
+      <h3 style="margin:.3rem 0 0">Your training plan</h3></div>
+    <div style="text-align:right"><b class="gradtext" style="font-size:1.3rem"><?= $adone ?>/<?= count($myAssigned) ?></b><div style="color:var(--dim);font-size:.72rem">COMPLETED</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.5rem;margin-top:.9rem">
+  <?php foreach ($myAssigned as $aid): $ac=cat_by_id($aid); if(!$ac)continue; $ok=in_array($aid,$solved,true); $ah=$base[$ac[2]]??'#'; ?>
+    <a href="<?= e($ah) ?>" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;border:1px solid <?= $ok?'var(--green)':'var(--line)' ?>;border-radius:10px;background:<?= $ok?'rgba(67,192,106,.06)':'var(--surface2)' ?>;color:var(--fg)">
+      <span style="font-size:1.1rem"><?= $ok?'✅':$ac[3] ?></span>
+      <span style="flex:1;min-width:0"><span style="font-size:.85rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?= e($ac[1]) ?></span>
+        <span style="color:var(--dim);font-size:.72rem"><?= e($ac[2]) ?> · <?= $ac[7] ?> pts</span></span></a>
+  <?php endforeach; ?>
+  </div>
+</div>
+<?php endif; ?>
+
 <?php $dc0 = daily_challenge(); $dcSolved = in_array($dc0[0],$solved,true); $dcHref = $base[$dc0[2]] ?? '#'; ?>
 <div class="panel fadeup" style="margin-top:1.6rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.05)">
   <div><span class="eyebrow" style="color:#fbbf24">⭐ CHALLENGE OF THE DAY</span>

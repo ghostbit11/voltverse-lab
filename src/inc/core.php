@@ -15,7 +15,7 @@ function db(): PDO {
 
 function seed(PDO $pdo): void {
     $pdo->exec("
-    CREATE TABLE platform_users (id INTEGER PRIMARY KEY, email TEXT UNIQUE, pass TEXT, name TEXT);
+    CREATE TABLE platform_users (id INTEGER PRIMARY KEY, email TEXT UNIQUE, pass TEXT, name TEXT, role TEXT DEFAULT 'member');
     -- STORE app
     CREATE TABLE users (id INTEGER PRIMARY KEY, email TEXT UNIQUE, password TEXT, name TEXT, is_admin INTEGER DEFAULT 0, secret TEXT);
     CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price REAL, emoji TEXT, descr TEXT, rating REAL);
@@ -76,10 +76,38 @@ function set_setting(string $k, string $v): void {
     ensure_settings(); db()->prepare("INSERT OR REPLACE INTO settings(k,v) VALUES(?,?)")->execute([$k,$v]);
 }
 
-function is_instructor(): bool {
-    $me = pf_user(); if (!$me) return false;
-    $first = db()->query("SELECT email FROM platform_users ORDER BY id LIMIT 1")->fetchColumn();
-    return $first !== false && $first === $me['email'];
+/* ---- roles & team management ---- */
+function ensure_roles(): void {
+    static $done = false; if ($done) return; $done = true;
+    try {
+        $cols = array_column(db()->query("PRAGMA table_info(platform_users)")->fetchAll(PDO::FETCH_ASSOC), 'name');
+        if (!in_array('role', $cols, true)) db()->exec("ALTER TABLE platform_users ADD COLUMN role TEXT DEFAULT 'member'");
+        // the earliest-registered account is the company admin/owner
+        db()->exec("UPDATE platform_users SET role='admin' WHERE id=(SELECT MIN(id) FROM platform_users) AND (role IS NULL OR role='')");
+        db()->exec("UPDATE platform_users SET role='member' WHERE role IS NULL OR role=''");
+    } catch (Throwable $e) {}
+}
+function user_role(string $email): string {
+    ensure_roles();
+    $s = db()->prepare("SELECT role FROM platform_users WHERE email=?"); $s->execute([$email]);
+    $r = $s->fetchColumn(); return $r ?: 'member';
+}
+function is_admin_user(): bool { $u = pf_user(); return $u && user_role($u['email']) === 'admin'; }
+function is_instructor(): bool { return is_admin_user(); }   // back-compat alias
+function has_any_user(): bool { return (bool) db()->query("SELECT 1 FROM platform_users LIMIT 1")->fetchColumn(); }
+function create_platform_user(string $email, string $name, string $pass, string $role = 'member'): void {
+    ensure_roles();
+    db()->prepare("INSERT INTO platform_users(email,pass,name,role) VALUES(?,?,?,?)")
+        ->execute([$email, password_hash($pass, PASSWORD_DEFAULT), $name ?: $email, $role]);
+}
+
+/* ---- assignments (admin gives specific tests to a member) ---- */
+function ensure_assignments(): void { db()->exec("CREATE TABLE IF NOT EXISTS assignments(player TEXT, cid TEXT, ts TEXT DEFAULT (datetime('now')), PRIMARY KEY(player,cid))"); }
+function assigned_ids(string $email): array { ensure_assignments(); $s = db()->prepare("SELECT cid FROM assignments WHERE player=?"); $s->execute([$email]); return array_column($s->fetchAll(PDO::FETCH_ASSOC), 'cid'); }
+function set_assignment(string $email, string $cid, bool $on): void {
+    ensure_assignments();
+    if ($on) db()->prepare("INSERT OR IGNORE INTO assignments(player,cid) VALUES(?,?)")->execute([$email, $cid]);
+    else db()->prepare("DELETE FROM assignments WHERE player=? AND cid=?")->execute([$email, $cid]);
 }
 function require_login(): void {
     if (!pf_user()) { header('Location: /login.php'); exit; }
