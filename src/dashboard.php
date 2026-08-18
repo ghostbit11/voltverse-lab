@@ -91,7 +91,7 @@ head('Dashboard');
 </div>
 <script>
 var TOUR=[
- ['🛰️','Welcome to VoltVerse','A live cyber range with 8 realistic targets — a store, a bank, an AI copilot, a JWT SSO, APIs and more. Each app hides multiple real vulnerabilities.'],
+ ['🛰️','Welcome to VoltVerse','A live cyber range with 11 realistic targets — a store, a bank, an AI copilot, JWT SSO, GraphQL, OAuth, APIs and more. Each app hides multiple real vulnerabilities.'],
  ['🎯','Pick a target','On "Your targets", click any card marked LIVE to open the real app and start hacking. Nothing here is a toy form — treat it like the real thing.'],
  ['🎚️','Choose a difficulty','Like bWAPP, every bug scales: Low → Medium → High → Secure. Start at Low, then raise it to make the same vuln harder — or study the fixed code at Secure.'],
  ['🚩','Capture & submit flags','Exploit a bug and a flag like VOLT{...} appears. Hit "🚩 Submit flag" to score points, earn first-blood and climb the leaderboard.'],
