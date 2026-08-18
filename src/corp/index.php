@@ -28,7 +28,6 @@ $sub = $_COOKIE['corp_sub'] ?? 'you@voltcorp.local';
     <input name="email" placeholder="new email…" value="<?= e($sub) ?>" style="flex:1;padding:.7rem .9rem;border:1px solid #d7deea;border-radius:10px">
     <button class="btn">Update email</button>
   </form>
-  <div class="notice">This form changes your account email via a simple GET request with no CSRF token — a
-    malicious site could forge it. Try: <code>/corp/subscribe.php?email=attacker@evil.com</code></div>
+  <p style="color:#94a3b8;font-size:.82rem;margin:.6rem 0 0">We'll only use your email to send product news. Unsubscribe anytime.</p>
 </div>
 <?php site_foot('VoltCorp');

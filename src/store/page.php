@@ -31,7 +31,7 @@ if (lvl_secure()) {
   </div>
   <div class="summary"><h3>Help topics</h3>
     <?php foreach ($pages as $k=>$t): ?><div class="srow"><a href="/store/page.php?page=<?= e($k) ?>"><?= e($t) ?></a></div><?php endforeach; ?>
-    <p style="color:#878787;font-size:.8rem;margin-top:.6rem">Try <code>?page=../../../../secret_lfi</code></p>
+    <p style="color:#878787;font-size:.8rem;margin-top:.6rem">Can't find what you need? <a href="/store/">Back to store</a></p>
   </div>
 </div>
 <?php store_foot();

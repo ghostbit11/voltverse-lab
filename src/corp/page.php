@@ -30,7 +30,6 @@ if ($secure) {
     <pre style="background:#f8fafc;color:#0f172a;border:1px solid #eef1f6"><?= e($body) ?></pre>
     <?php if (!$secure && strpos((string)$body,'VOLT{')!==false): ?><div class="flag">🚩 Path traversal / LFI — you read a file outside the web root!</div><?php endif; ?>
   </div>
-  <p style="color:#94a3b8;font-size:.85rem">Pages are loaded from a file by the <code>page</code> parameter.
-    Try <code>?page=../../../../corp_secret</code></p>
+  <p style="color:#94a3b8;font-size:.85rem">© VoltCorp Inc. — all information on this page is provided for general reference.</p>
 </div>
 <?php site_foot('VoltCorp');

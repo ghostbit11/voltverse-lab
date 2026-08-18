@@ -32,6 +32,6 @@ store_head('Upload avatar');
   <?php if ($msg): ?><div class="notice" style="margin-top:1rem"><?= e($msg) ?></div><?php endif; ?>
   <?php if ($url): ?><p><a href="<?= e($url) ?>" target="_blank">Open uploaded file ↗</a></p><?php endif; ?>
   <?php if ($flag): ?><div class="flag">🚩 A server-executable file was accepted — unrestricted file upload → webshell / RCE! Flag: VOLT{store_unrestricted_upload}</div><?php endif; ?>
-  <?php if (!$secure): ?><div class="notice">💡 There's no real file-type check here. Try uploading <code>shell.php</code>.</div><?php endif; ?>
+  <p style="color:#64748b;font-size:.82rem">Accepted formats: JPG, PNG, GIF or WEBP · max 2&nbsp;MB.</p>
 </div>
 <?php store_foot();

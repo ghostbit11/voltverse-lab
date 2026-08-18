@@ -41,6 +41,6 @@ $all = db()->query("SELECT * FROM accounts")->fetchAll(PDO::FETCH_ASSOC);
     <tr><td><?= e($a['holder']) ?></td><td style="font-family:monospace"><?= e($a['number']) ?></td>
       <td style="text-align:right"><a href="/bank/account.php?id=<?= (int)$a['id'] ?>">View</a></td></tr>
   <?php endforeach; ?></table>
-  <div class="warn" style="margin-top:.8rem">Tip: account statements are addressed by account id — <code>/bank/account.php?id=5001</code></div>
+  <div style="margin-top:.8rem;color:#8496ad;font-size:.82rem">Need help? Aurora Bank support is available 24/7 at 1-800-AURORA.</div>
 </div>
 <?php bank_foot();

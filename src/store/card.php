@@ -26,8 +26,7 @@ store_head('Gift card');
       <textarea name="message" rows="3" placeholder="Happy birthday, {{ name }}!"><?= e($msg) ?></textarea>
       <div style="margin-top:.6rem"><button class="btn btn-cart">Preview card</button></div>
     </form>
-    <?php if (!$secure): ?><div class="notice">💡 The template engine evaluates <code>{{ }}</code>. Try
-      <code>{{7*7}}</code>, then <code>{{ file_get_contents('/var/secret_lfi.txt') }}</code></div><?php endif; ?>
+    <p style="color:#878787;font-size:.82rem">Personalise your message with <code>{{ name }}</code> tags — they're filled in automatically.</p>
   </div>
   <div class="section">
     <h3 style="margin-top:0">Preview</h3>

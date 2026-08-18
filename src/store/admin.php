@@ -45,14 +45,14 @@ $users = db()->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
     <form method="post"><div class="field"><label>Host to ping</label><input name="host" value="127.0.0.1"></div>
       <button class="btn btn-blue">Run ping</button></form>
     <?php if ($ping!==null): ?><pre style="background:#0b1020;color:#7CFC00;padding:.8rem;border-radius:6px;overflow:auto;font-size:.8rem"><?= e($ping) ?></pre><?php endif; ?>
-    <p style="color:#878787;font-size:.82rem">Try: <code>127.0.0.1; cat /flag_cmdi.txt</code></p>
+    <p style="color:#878787;font-size:.82rem">Diagnostics · runs a reachability check against the given host.</p>
   </div>
 
   <div class="section"><h2 style="margin-top:0">🖼 Import product image (A10 · SSRF)</h2>
     <form method="post"><div class="field"><label>Image URL</label><input name="url" value="http://cdn.voltverse.local/promo.png"></div>
       <button class="btn btn-blue">Fetch</button></form>
     <?php if ($ssrf!==null): ?><pre style="background:#0b1020;color:#93c5fd;padding:.8rem;border-radius:6px;overflow:auto;font-size:.8rem"><?= e(substr($ssrf,0,600)) ?></pre><?php endif; ?>
-    <p style="color:#878787;font-size:.82rem">Try fetching an internal URL: <code>http://127.0.0.1/store/internal.php</code></p>
+    <p style="color:#878787;font-size:.82rem">Imports a product image from a URL onto our CDN.</p>
   </div>
 </div>
 <?php store_foot();

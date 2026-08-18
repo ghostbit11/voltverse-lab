@@ -29,8 +29,7 @@ $acc = db()->query("SELECT * FROM accounts WHERE owner='" . $me . "'")->fetch(PD
     <button class="btn btn-g" onclick="claim(5)">⚡ Claim ×5 (parallel)</button>
     <div id="out" style="margin-top:1rem"></div>
   </div>
-  <div class="warn">A real voucher should only ever be claimed once. At Low the check-then-credit isn't atomic — fire several
-    requests at once (race condition) and each one credits you.</div>
+  <div style="color:#8496ad;font-size:.82rem;margin-top:.4rem">This welcome voucher can be redeemed once per account. Credits appear instantly.</div>
 </div>
 <script>
 async function claim(n){var out=document.getElementById('out');out.innerHTML='claiming…';

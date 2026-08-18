@@ -29,8 +29,7 @@ $_SESSION['bank_otp'] = '748193';   // "sent to device"
     <form method="post"><input type="hidden" name="step" value="verify">
       <div class="field"><label>Enter OTP</label><input name="otp" placeholder="6-digit code" maxlength="6"></div>
       <button class="btn btn-p full">Authorise transfer</button></form>
-    <?php if (!$secure): ?><div class="warn" style="margin-top:1rem">The server never checks the code against the one it sent —
-      it only checks the format. Enter any 6 digits (e.g. <code>000000</code>).</div><?php endif; ?>
+    <div style="color:#8496ad;font-size:.82rem;margin-top:.8rem">Didn't get a code? Check your registered device or <a href="#">resend OTP</a>.</div>
   </div>
 </div>
 <?php bank_foot();

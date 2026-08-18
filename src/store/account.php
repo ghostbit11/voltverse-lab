@@ -30,7 +30,7 @@ $orders = $os->fetchAll(PDO::FETCH_ASSOC);
   <?php endif; ?>
   <?php if ($xss): ?><div class="flag" style="margin-top:1rem">🚩 Stored XSS in your profile name executed. Flag: VOLT{store_profile_xss}</div><?php endif; ?>
   <form method="post" class="two" style="margin-top:1rem;align-items:end">
-    <div class="field"><label>Display name (no CSRF token — try changing it from another site)</label><input name="name" value="<?= e($cust['name']) ?>"></div>
+    <div class="field"><label>Display name</label><input name="name" value="<?= e($cust['name']) ?>"></div>
     <div><button class="btn btn-blue">Save profile</button></div>
   </form>
 </div>
