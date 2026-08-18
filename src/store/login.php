@@ -6,7 +6,14 @@ if (isset($_GET['as'])) { setcookie('st_user','customer@volt.local',0,'/'); head
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email=$_POST['email']??''; $pass=$_POST['password']??''; $row=null;
     if ($secure) { $st=db()->prepare("SELECT * FROM users WHERE email=? AND password=?"); $st->execute([$email,$pass]); $row=$st->fetch(PDO::FETCH_ASSOC); }
-    else { try { $row=db()->query("SELECT * FROM users WHERE email='$email' AND password='$pass'")->fetch(PDO::FETCH_ASSOC); } catch(Throwable $e){ $row=null; } }
+    else {
+        $lvl = level(); $inj = $email;
+        // MEDIUM: naive blacklist strips the keywords once → nest them (OORR) so a copy survives.
+        if ($lvl === 'medium')     $inj = str_ireplace(['or','union','select'], '', $email);
+        // HIGH: strips space-delimited keywords → wrap OR in /**/ comments to bypass.
+        elseif ($lvl === 'high')   $inj = preg_replace('/\s+(or|union|select)\s+/i', ' ', $email);
+        try { $row=db()->query("SELECT * FROM users WHERE email='$inj' AND password='$pass'")->fetch(PDO::FETCH_ASSOC); } catch(Throwable $e){ $row=null; }
+    }
     if ($row){ setcookie('st_user',$row['email'],0,'/'); header('Location: /store/account.php'); exit; }
     $msg='Invalid email or password.';
 }

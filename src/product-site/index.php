@@ -6,10 +6,18 @@ site_head('The all-new VoltBook Pro', $cfg);
 $secure = lvl_secure();
 $q   = $_GET['q'] ?? '';
 $ref = $_GET['ref'] ?? '';
-// A03 · Reflected XSS: user input echoed back without encoding at Low/Med/High
-$showQ   = $secure ? e($q)   : $q;
-$showRef = $secure ? e($ref) : $ref;
-$xss = (!$secure && preg_match('/<script|onerror=|onload=/i', $q.$ref));
+// A03 · Reflected XSS — the reflection is filtered differently per difficulty level.
+$lvl = level();
+$filter = function($s) use ($secure,$lvl) {
+    if ($secure) return e($s);                                   // SECURE: fully HTML-escaped
+    if ($lvl === 'medium') return str_ireplace('<script', '', $s);           // strips <script> → use <img onerror>
+    if ($lvl === 'high')   return str_ireplace(['<script','onerror'], '', $s); // also strips onerror → use <svg onload>
+    return $s;                                                   // LOW: raw
+};
+$showQ   = $filter($q);
+$showRef = $filter($ref);
+// flag fires only if a live vector actually survived into the reflected output
+$xss = (!$secure && preg_match('/<script|onerror\s*=|onload\s*=/i', $showQ.$showRef));
 ?>
 <div class="hero">
   <div class="eyebrow">New · 2026 edition</div>

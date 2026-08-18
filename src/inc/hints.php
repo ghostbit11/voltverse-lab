@@ -7,7 +7,7 @@ const HINT_COST = 20;
 function HINTS(): array {
     return [
       'sqli-search'  => ["The search term goes straight into a SQL query.","The products query selects 6 columns — match that with a UNION SELECT to read the users table."],
-      'sqli-login'   => ["The login query concatenates your input.","A classic <code>' OR '1'='1</code> in the email closes the string and makes the WHERE always true."],
+      'sqli-login'   => ["The login query concatenates your input.","Break out of the email string and force an admin match — think <code>' OR is_admin=1-- </code>."],
       'xss-reviews'  => ["Review text is rendered back to every viewer.","Nothing strips HTML — a raw <code>&lt;script&gt;</code> tag will execute."],
       'xss-profile'  => ["Your display name is echoed on your account page.","At Low it's rendered without escaping — inject an HTML tag."],
       'cmdi'         => ["The admin 'ping' tool runs a real shell command.","Your host value isn't sanitised — chain a second command with <code>;</code>."],

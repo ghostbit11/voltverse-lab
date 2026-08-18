@@ -13,7 +13,10 @@ if (lvl_secure()) {
     $body = $content[$p] ?? 'Page not found.';   // SECURE: allow-listed keys only
 } else {
     // VULN: builds a file path from user input → path traversal / LFI
-    $file = __DIR__ . "/content/$p.txt";
+    $lvl = level(); $pp = $p;
+    // MEDIUM/HIGH: naively strip "../" ONCE → nest it (....//) so a "../" reassembles after removal.
+    if ($lvl === 'medium' || $lvl === 'high') $pp = str_replace(['../','..\\'], '', $p);
+    $file = __DIR__ . "/content/$pp.txt";
     if (isset($content[$p])) $body = $content[$p];
     else { $raw = @file_get_contents($file); $body = $raw !== false ? $raw : ($err = "Could not read: $file"); }
 }
