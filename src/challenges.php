@@ -6,20 +6,25 @@ require_once __DIR__ . '/inc/hints.php';
 require_login();
 $u = pf_user();
 $solved = solved_ids($u['email']);
+$assigned = assigned_ids($u['email']);
+// Members with an assigned training plan see ONLY their assigned tests. Admins see everything.
+$restricted = !is_admin_user() && !empty($assigned);
 $all = CATALOG();
-$done = count($solved); $total = count($all);
+if ($restricted) $all = array_values(array_filter($all, fn($c)=>in_array($c[0],$assigned,true)));
+$visibleIds = array_map(fn($c)=>$c[0], $all);
+$done = count(array_intersect($solved, $visibleIds)); $total = count($all);
 $apps = array_values(array_unique(array_map(fn($c)=>$c[2], $all)));
 $dl = [1=>'Easy',2=>'Medium',3=>'Hard',4=>'Expert'];
-$wtEnabled = setting('walkthroughs_enabled','1')==='1';
-$showWt = $wtEnabled || is_instructor();   // instructor always sees them
-$showHints = setting('hints_enabled','1')==='1' || is_instructor();
+$showWt = is_admin_user() || member_wt_on($u['email']);
+$showHints = is_admin_user() || member_hints_on($u['email']);
 $dc = [1=>'#34d399',2=>'#fbbf24',3=>'#fb923c',4=>'#f87171'];
 $base = ['Voltmart'=>'/store/','Aurora Bank'=>'/bank/','VoltID'=>'/jwt/','Voltmart Copilot'=>'/ai/','VoltData'=>'/graphql/','VoltConnect'=>'/oauth/','VoltSync'=>'/deserial/','VoltBook Microsite'=>'/product-site/','VoltCorp Website'=>'/corp/','Voltmart API'=>'/api/','Campaigns'=>'/campaigns.php'];
 head('Challenges');
 ?>
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
-  <div><h1 style="margin:0;font-size:1.7rem">All challenges</h1>
-    <p style="color:var(--muted);margin:.3rem 0 0"><?= $done ?>/<?= $total ?> solved · <?= player_points($u['email']) ?> pts. Find a flag, then hit <b>🚩 Submit flag</b>.</p></div>
+  <div><h1 style="margin:0;font-size:1.7rem"><?= $restricted ? 'Your assigned tests' : 'All challenges' ?></h1>
+    <p style="color:var(--muted);margin:.3rem 0 0"><?= $done ?>/<?= $total ?> solved · <?= player_points($u['email']) ?> pts.
+      <?= $restricted ? 'These were assigned to you by your admin. ' : '' ?>Find a flag, then hit <b>🚩 Submit flag</b>.</p></div>
   <button class="sfbtn" style="padding:.6rem 1.1rem;font-size:.9rem" onclick="openFlag()">🚩 Submit flag</button>
 </div>
 <div class="filters" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem">

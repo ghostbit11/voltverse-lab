@@ -4,6 +4,20 @@ require_once __DIR__ . '/inc/catalog.php';
 require_once __DIR__ . '/inc/hints.php';
 require_login();
 $u = pf_user();
+$pmsg = null; $pbad = false;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'account') {
+    $newName = trim($_POST['name'] ?? '');
+    $newPw   = $_POST['password'] ?? '';
+    $curPw   = $_POST['current'] ?? '';
+    // verify current password before any change
+    $row = db()->prepare("SELECT pass FROM platform_users WHERE email=?"); $row->execute([$u['email']]); $hash = $row->fetchColumn();
+    if (!$hash || !password_verify($curPw, $hash)) { $pmsg = 'Current password is incorrect.'; $pbad = true; }
+    else {
+        if ($newName !== '' && $newName !== $u['name']) { set_user_name($u['email'], $newName); $_SESSION['pf']['name'] = $newName; $u = pf_user(); }
+        if ($newPw !== '') { if (strlen($newPw) < 3) { $pmsg = 'New password too short.'; $pbad = true; } else set_user_password($u['email'], $newPw); }
+        if (!$pbad) $pmsg = 'Account updated.';
+    }
+}
 $all = CATALOG(); $total = count($all);
 $solved = solved_ids($u['email']); $done = count($solved);
 $pts = player_points($u['email']); $rank = player_rank($u['email']); $pct = $total?round(100*$done/$total):0;
@@ -39,6 +53,19 @@ head('Profile');
   <div class="b"><b class="gradtext"><?= $done ?>/<?= $total ?></b><span>SOLVED</span></div>
   <div class="b"><b class="gradtext">🔥 <?= player_streak($u['email']) ?></b><span>DAY STREAK</span></div>
   <div class="b"><b class="gradtext"><?= $hintsUsed ?></b><span>HINTS USED</span></div>
+</div>
+
+<div class="panel" style="margin-top:1.4rem">
+  <h3 style="margin-top:0">Account settings</h3>
+  <?php if ($pmsg): ?><div style="border:1px solid <?= $pbad?'rgba(242,86,75,.4)':'var(--accent-line)' ?>;color:<?= $pbad?'#f3a09a':'#9db8ff' ?>;background:<?= $pbad?'rgba(242,86,75,.08)':'var(--accent-soft)' ?>;border-radius:9px;padding:.6rem .9rem;margin-bottom:.8rem;font-size:.88rem"><?= e($pmsg) ?></div><?php endif; ?>
+  <form method="post" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:640px">
+    <input type="hidden" name="action" value="account">
+    <div><label>Display name</label><input name="name" value="<?= e($u['name']) ?>"></div>
+    <div><label>Email <span style="color:var(--dim);text-transform:none">(can't change)</span></label><input value="<?= e($u['email']) ?>" disabled></div>
+    <div><label>New password <span style="color:var(--dim);text-transform:none">(leave blank to keep)</span></label><input type="password" name="password" placeholder="••••••••"></div>
+    <div><label>Current password <span style="color:var(--dim);text-transform:none">(required to save)</span></label><input type="password" name="current" placeholder="verify it's you" required></div>
+    <div style="grid-column:1/3"><button class="btn">Save changes</button></div>
+  </form>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.4rem">

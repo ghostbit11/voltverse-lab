@@ -4,7 +4,7 @@ require_once __DIR__ . '/inc/hints.php';
 require_login();
 header('Content-Type: application/json');
 $u = pf_user();
-if (setting('hints_enabled','1') !== '1' && !is_instructor()) { echo json_encode(['ok'=>false,'error'=>'Hints are disabled by your instructor.']); exit; }
+if (!is_admin_user() && !member_hints_on($u['email'])) { echo json_encode(['ok'=>false,'error'=>'Hints are disabled by your admin.']); exit; }
 $cid = trim($_POST['cid'] ?? '');
 $idx = (int)($_POST['idx'] ?? -1);
 $hints = hints_for($cid);

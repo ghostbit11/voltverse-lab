@@ -76,15 +76,22 @@ function set_setting(string $k, string $v): void {
     ensure_settings(); db()->prepare("INSERT OR REPLACE INTO settings(k,v) VALUES(?,?)")->execute([$k,$v]);
 }
 
-/* ---- roles & team management ---- */
+/* ---- roles & team management ---------------------------------------------
+   Hierarchy:  superadmin  >  admin  >  member
+   - superadmin: owns the whole lab — manage ALL users (incl. admins), set any
+                 password, all settings. The earliest-registered account.
+   - admin:      manages members (their team) — create/assign/reset members,
+                 content controls, view scores. Cannot touch admins/superadmin.
+   - member:     a learner. */
 function ensure_roles(): void {
     static $done = false; if ($done) return; $done = true;
     try {
         $cols = array_column(db()->query("PRAGMA table_info(platform_users)")->fetchAll(PDO::FETCH_ASSOC), 'name');
         if (!in_array('role', $cols, true)) db()->exec("ALTER TABLE platform_users ADD COLUMN role TEXT DEFAULT 'member'");
-        // the earliest-registered account is the company admin/owner
-        db()->exec("UPDATE platform_users SET role='admin' WHERE id=(SELECT MIN(id) FROM platform_users) AND (role IS NULL OR role='')");
         db()->exec("UPDATE platform_users SET role='member' WHERE role IS NULL OR role=''");
+        // guarantee exactly one super administrator: the earliest account
+        if (!db()->query("SELECT 1 FROM platform_users WHERE role='superadmin' LIMIT 1")->fetchColumn())
+            db()->exec("UPDATE platform_users SET role='superadmin' WHERE id=(SELECT MIN(id) FROM platform_users)");
     } catch (Throwable $e) {}
 }
 function user_role(string $email): string {
@@ -92,14 +99,34 @@ function user_role(string $email): string {
     $s = db()->prepare("SELECT role FROM platform_users WHERE email=?"); $s->execute([$email]);
     $r = $s->fetchColumn(); return $r ?: 'member';
 }
-function is_admin_user(): bool { $u = pf_user(); return $u && user_role($u['email']) === 'admin'; }
-function admin_exists(): bool { ensure_roles(); return (bool) db()->query("SELECT 1 FROM platform_users WHERE role='admin' LIMIT 1")->fetchColumn(); }
+function is_superadmin(): bool { $u = pf_user(); return $u && user_role($u['email']) === 'superadmin'; }
+function is_admin_user(): bool { $u = pf_user(); return $u && in_array(user_role($u['email']), ['admin','superadmin'], true); }
+function admin_exists(): bool { ensure_roles(); return (bool) db()->query("SELECT 1 FROM platform_users WHERE role IN('admin','superadmin') LIMIT 1")->fetchColumn(); }
 function is_instructor(): bool { return is_admin_user(); }   // back-compat alias
 function has_any_user(): bool { return (bool) db()->query("SELECT 1 FROM platform_users LIMIT 1")->fetchColumn(); }
 function create_platform_user(string $email, string $name, string $pass, string $role = 'member'): void {
     ensure_roles();
     db()->prepare("INSERT INTO platform_users(email,pass,name,role) VALUES(?,?,?,?)")
         ->execute([$email, password_hash($pass, PASSWORD_DEFAULT), $name ?: $email, $role]);
+}
+function set_user_password(string $email, string $pw): void {
+    db()->prepare("UPDATE platform_users SET pass=? WHERE email=?")->execute([password_hash($pw, PASSWORD_DEFAULT), $email]);
+}
+function set_user_name(string $email, string $name): void {
+    db()->prepare("UPDATE platform_users SET name=? WHERE email=?")->execute([$name, $email]);
+}
+function set_user_role(string $email, string $role): void {
+    if (!in_array($role, ['member','admin','superadmin'], true)) return;
+    db()->prepare("UPDATE platform_users SET role=? WHERE email=?")->execute([$role, $email]);
+}
+/* per-member content overrides (Default / force-On / force-Off) over the global setting */
+function member_hints_on(string $email): bool {
+    $ov = setting('uhint:'.$email, ''); if ($ov==='1') return true; if ($ov==='0') return false;
+    return setting('hints_enabled','1') === '1';
+}
+function member_wt_on(string $email): bool {
+    $ov = setting('uwt:'.$email, ''); if ($ov==='1') return true; if ($ov==='0') return false;
+    return setting('walkthroughs_enabled','1') === '1';
 }
 
 /* ---- assignments (admin gives specific tests to a member) ---- */

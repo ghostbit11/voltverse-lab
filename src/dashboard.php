@@ -4,13 +4,18 @@ require_once __DIR__ . '/inc/catalog.php';
 require_login();
 $u = pf_user();
 $solved = solved_ids($u['email']);
-$total = count(CATALOG()); $done = count($solved);
+$assigned = assigned_ids($u['email']);
+$restricted = !is_admin_user() && !empty($assigned);   // member with a training plan → scope everything to it
+$catalog = CATALOG();
+if ($restricted) $catalog = array_values(array_filter($catalog, fn($c)=>in_array($c[0],$assigned,true)));
+$vis = array_map(fn($c)=>$c[0], $catalog);
+$total = count($catalog); $done = count(array_intersect($solved,$vis));
 $pts = player_points($u['email']); $rank = player_rank($u['email']);
 $pct = $total ? round(100*$done/$total) : 0;
 $deg = round($pct*3.6);
 
 $base = ['Voltmart'=>'/store/','Aurora Bank'=>'/bank/','VoltID'=>'/jwt/','Voltmart Copilot'=>'/ai/','VoltData'=>'/graphql/','VoltConnect'=>'/oauth/','VoltSync'=>'/deserial/','VoltBook Microsite'=>'/product-site/','VoltCorp Website'=>'/corp/','Voltmart API'=>'/api/','Campaigns'=>'/campaigns.php'];
-$per = []; foreach (CATALOG() as $c){ $per[$c[2]]=$per[$c[2]]??['icon'=>$c[3],'t'=>0,'s'=>0]; $per[$c[2]]['t']++; if(in_array($c[0],$solved,true))$per[$c[2]]['s']++; }
+$per = []; foreach ($catalog as $c){ $per[$c[2]]=$per[$c[2]]??['icon'=>$c[3],'t'=>0,'s'=>0]; $per[$c[2]]['t']++; if(in_array($c[0],$solved,true))$per[$c[2]]['s']++; }
 
 $ach = [
   ['🎬','Getting Started','Solve your first challenge',$done>=1],
