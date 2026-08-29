@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../inc/site_layout.php';
-$cfg = ['brand'=>'VoltBook Pro','ico'=>'📦','accent'=>'#0ea5e9','home'=>'/product-site/',
+$cfg = ['brand'=>'VoltBook Pro','ico'=>'📦','accent'=>'#0ea5e9','lab'=>'VoltBook Microsite','home'=>'/product-site/',
         'nav'=>[['Features','#feat'],['Reviews','#rev'],['Deals','#deals']],'cta'=>'Pre-order','cta_href'=>'#deals'];
 site_head('The all-new VoltBook Pro', $cfg);
 $secure = lvl_secure();

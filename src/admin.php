@@ -35,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$iAmSuper) $rl = 'member';                         // admins can only create members
         if (!in_array($rl, ['member','admin'], true)) $rl = 'member';
         if (!$cem || !$pw) { $note = 'Email and password are required.'; $noteBad = true; }
-        else { try { create_platform_user($cem, $nm, $pw, $rl); $note = "Created $rl account for $cem."; }
+        else { try { create_platform_user($cem, $nm, $pw, $rl); set_setting('mustpw:'.$cem, '1');
+                     $note = "Created $rl account for $cem. They'll set their own password on first sign-in."; }
                catch (Throwable $e) { $note = 'That email is already registered.'; $noteBad = true; } }
     } elseif ($act === 'reset' && $em && $manage) {
         db()->prepare("DELETE FROM solves WHERE player=?")->execute([$em]);
@@ -73,10 +74,14 @@ $wtOn = setting('walkthroughs_enabled','1')==='1';
 $hintsOn = setting('hints_enabled','1')==='1';
 $openOn = setting('open_signup','1')==='1';
 $players = db()->query("SELECT id,email,name,role FROM platform_users ORDER BY CASE role WHEN 'superadmin' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, id")->fetchAll(PDO::FETCH_ASSOC);
+// A regular admin only sees their team (members) + themselves — never the superadmin or other admins.
+if (!$iAmSuper) $players = array_values(array_filter($players, fn($p)=>$p['role']==='member' || $p['email']===$me['email']));
 $totSolves = (int)db()->query("SELECT COUNT(*) FROM solves")->fetchColumn();
 $active = (int)db()->query("SELECT COUNT(DISTINCT player) FROM solves")->fetchColumn();
-$assignFor = $_GET['assign'] ?? '';
-$viewFor = $_GET['view'] ?? '';
+$act = $_POST['action'] ?? '';
+// keep the relevant panel open after its POST so the success message is visible in context
+$assignFor = $_GET['assign'] ?? ($act === 'assign' ? ($_POST['player'] ?? '') : '');
+$viewFor   = $_GET['view']   ?? (in_array($act, ['setpw','ucontent'], true) ? ($_POST['email'] ?? '') : '');
 
 function role_badge($r) {
     $c = $r==='superadmin' ? ['#c4b5fd','rgba(124,92,255,.15)','rgba(124,92,255,.4)']
@@ -121,7 +126,7 @@ head('Admin');
         <?php if ($iAmSuper): ?><div><label>Role</label><select name="role"><option value="member">Member</option><option value="admin">Admin</option></select></div><?php endif; ?>
       </div>
       <label>Email</label><input name="cemail" type="email" placeholder="jane@company.com" required>
-      <label>Temporary password</label><input name="password" required placeholder="they can sign in with this">
+      <label>Temporary password</label><input type="password" name="password" required placeholder="they can sign in with this">
       <button class="btn full" style="margin-top:.8rem">Create account</button>
     </form>
   </div>
@@ -171,6 +176,7 @@ head('Admin');
     <h3 style="margin:0"><?= e($vu['name']) ?> <?= role_badge($vu['role']) ?> <span style="color:var(--dim);font-weight:400">· <?= e($viewFor) ?></span></h3>
     <a class="btn ghost" href="/admin.php" style="padding:.3rem .7rem;font-size:.78rem">Close</a>
   </div>
+  <?php if ($note && in_array($act,['setpw','ucontent'],true)): ?><div style="margin-top:.8rem;padding:.6rem .9rem;border-radius:9px;background:<?= $noteBad?'rgba(242,86,75,.12)':'rgba(67,192,106,.12)' ?>;color:<?= $noteBad?'#f3a09a':'#7ee0a0' ?>;font-size:.88rem"><?= $noteBad?'':'✓ ' ?><?= e($note) ?></div><?php endif; ?>
   <div class="stat" style="margin-top:1rem">
     <div class="b"><b class="gradtext"><?= $vpts ?></b><span>Points</span></div>
     <div class="b"><b class="gradtext">#<?= $vrank ?></b><span>Rank</span></div>
@@ -184,7 +190,7 @@ head('Admin');
     <div style="border:1px solid var(--line);border-radius:10px;padding:1rem">
       <h4 style="margin:0 0 .5rem">Set a new password</h4>
       <form method="post" style="display:flex;gap:.5rem"><input type="hidden" name="action" value="setpw"><input type="hidden" name="email" value="<?= e($viewFor) ?>">
-        <input name="newpw" placeholder="new password" style="flex:1"><button class="btn">Set</button></form>
+        <input type="password" name="newpw" placeholder="new password" style="flex:1"><button class="btn">Set</button></form>
     </div>
     <div style="border:1px solid var(--line);border-radius:10px;padding:1rem">
       <h4 style="margin:0 0 .5rem">Learning aids for this member</h4>
@@ -224,6 +230,7 @@ head('Admin');
 <div class="panel" id="assign" style="margin-top:1.4rem;border-color:var(--accent-line)">
   <h3 style="margin-top:0">Assign tests to <?= e($auser['name']) ?> <span style="color:var(--dim);font-weight:400">· <?= e($assignFor) ?></span></h3>
   <p style="color:var(--muted);margin-top:0;font-size:.88rem">Tick the challenges this member should complete. They'll see <b>only these</b> on their Challenges page and dashboard.</p>
+  <?php if ($note && $act==='assign'): ?><div style="margin:.2rem 0 .8rem;padding:.6rem .9rem;border-radius:9px;background:rgba(67,192,106,.12);color:#7ee0a0;font-size:.88rem">✓ <?= e($note) ?></div><?php endif; ?>
   <form method="post"><input type="hidden" name="action" value="assign"><input type="hidden" name="player" value="<?= e($assignFor) ?>">
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem;max-height:360px;overflow:auto;padding:.3rem">
     <?php foreach ($byapp as $app=>$cs): ?>

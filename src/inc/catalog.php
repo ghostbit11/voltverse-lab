@@ -73,6 +73,10 @@ function cat_by_flag(string $flag): ?array {
     return null;
 }
 function cat_by_id(string $id): ?array { foreach (CATALOG() as $c) if ($c[0]===$id) return $c; return null; }
+/* distinct app names, in catalog order (each = a "lab" the superadmin can toggle) */
+function all_apps(): array { $a=[]; foreach (CATALOG() as $c) if (!in_array($c[2],$a,true)) $a[]=$c[2]; return $a; }
+/* CATALOG minus any challenge whose app/lab the superadmin disabled */
+function catalog_enabled(): array { return array_values(array_filter(CATALOG(), fn($c)=>lab_enabled($c[2]))); }
 function cat_total_points(): int { return array_sum(array_map(fn($c)=>$c[7], CATALOG())); }
 function cat_apps(): array { $a=[]; foreach (CATALOG() as $c){$a[$c[2]]=$a[$c[2]]??['icon'=>$c[3],'total'=>0,'pts'=>0];$a[$c[2]]['total']++;$a[$c[2]]['pts']+=$c[7];} return $a; }
 
@@ -121,7 +125,8 @@ function player_streak(string $email): int {
 }
 /* Deterministic "challenge of the day" — same for everyone on a given date. */
 function daily_challenge(): array {
-    $all = CATALOG(); return $all[(int)date('z') % count($all)];
+    $all = catalog_enabled(); if (!$all) $all = CATALOG();
+    return $all[(int)date('z') % count($all)];
 }
 function level_name(int $pts): string {
     return $pts>=3000?'Elite Hacker':($pts>=1500?'Hacker':($pts>=500?'Operator':'Recruit'));

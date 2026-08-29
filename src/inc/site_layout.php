@@ -4,6 +4,7 @@ require_once __DIR__ . '/core.php';
 /* Generic clean marketing/corporate website layout (used by microsite + corp site). */
 function site_head(string $title, array $cfg): void {
     require_login();
+    if (!empty($cfg['lab'])) lab_guard($cfg['lab']);
     $accent = '#4f46e5';   // unified VoltVerse brand accent across all apps
     $brand  = $cfg['brand'] ?? 'Website';
     $ico    = $cfg['ico'] ?? '🌐';

@@ -9,7 +9,7 @@ $solved = solved_ids($u['email']);
 $assigned = assigned_ids($u['email']);
 // Members with an assigned training plan see ONLY their assigned tests. Admins see everything.
 $restricted = !is_admin_user() && !empty($assigned);
-$all = CATALOG();
+$all = catalog_enabled();                                  // hide labs the superadmin turned off
 if ($restricted) $all = array_values(array_filter($all, fn($c)=>in_array($c[0],$assigned,true)));
 $visibleIds = array_map(fn($c)=>$c[0], $all);
 $done = count(array_intersect($solved, $visibleIds)); $total = count($all);

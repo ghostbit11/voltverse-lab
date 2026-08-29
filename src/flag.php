@@ -7,6 +7,8 @@ $data = json_decode(file_get_contents('php://input'), true) ?: [];
 $flag = trim($data['flag'] ?? ($_POST['flag'] ?? ''));
 $c = cat_by_flag($flag);
 if (!$c) { echo json_encode(['correct'=>false, 'msg'=>'Incorrect flag — keep hunting.']); exit; }
+if (is_superadmin()) { echo json_encode(['correct'=>false, 'msg'=>'Superadmins manage the lab and do not score.']); exit; }
+if (!lab_enabled($c[2])) { echo json_encode(['correct'=>false, 'msg'=>'That lab is currently disabled.']); exit; }
 $fresh = record_solve($u['email'], $c[0]);
 $first = $fresh && is_first_blood($c[0]);
 echo json_encode(['correct'=>true, 'id'=>$c[0], 'title'=>$c[1], 'app'=>$c[2],

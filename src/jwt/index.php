@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../inc/layout.php';
 require_once __DIR__ . '/../inc/jwt.php';
 require_login();
-$APP = ['ico'=>'🔐','name'=>'VoltID (JWT SSO)'];
+$APP = ['ico'=>'🔐','name'=>'VoltID (JWT SSO)','lab'=>'VoltID'];
 $secure = lvl_secure();
 $mytoken = jwt_make(['sub'=>'customer@volt.local','role'=>'user','iat'=>1735689600]);
 $result = null; $flag = null;

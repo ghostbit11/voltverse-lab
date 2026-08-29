@@ -141,6 +141,7 @@ function nav_items(): array {
 }
 
 function head(string $title, $app = null): void {
+    if ($app && !empty($app['lab'])) lab_guard($app['lab']);   // block disabled labs / keep superadmin out
     $u = pf_user(); $lv = level();
     $cur = basename($_SERVER['SCRIPT_NAME'] ?? '');
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8">

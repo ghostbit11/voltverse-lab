@@ -3,10 +3,60 @@ require_once __DIR__ . '/inc/layout.php';
 require_once __DIR__ . '/inc/catalog.php';
 require_login();
 $u = pf_user();
+
+/* ---- Superadmin sees a CONFIGURATION console, never a solving surface ---- */
+if (is_superadmin()) {
+    $apps = all_apps();
+    $snote = null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'labs') {
+        $on = $_POST['lab'] ?? [];
+        foreach ($apps as $app) set_setting('lab:'.$app, in_array($app, $on, true) ? '1' : '0');
+        $snote = 'Lab configuration saved.';
+    }
+    $meta = cat_apps();
+    $enabledCount = count(array_filter($apps, 'lab_enabled'));
+    $userCount = (int)db()->query("SELECT COUNT(*) FROM platform_users")->fetchColumn();
+    $memberCount = (int)db()->query("SELECT COUNT(*) FROM platform_users WHERE role='member'")->fetchColumn();
+    head('Lab control');
+    ?>
+    <div class="hero fadeup" style="padding:1.8rem 1.9rem">
+      <span class="eyebrow">👑 Super administrator · configuration</span>
+      <h1 style="font-size:1.8rem">Lab control center</h1>
+      <p>You manage the range — decide which labs are live for your users, and administer accounts. Solving is for members and admins.</p>
+      <div style="margin-top:1rem"><a class="cta" href="/admin.php">Manage users →</a>
+        <a class="btn" href="/leaderboard.php" style="margin-left:.5rem">Leaderboard</a>
+        <a class="btn" href="/soc.php" style="margin-left:.5rem">🛡 SOC</a></div>
+    </div>
+    <div class="stat" style="margin-top:1.2rem">
+      <div class="b"><b class="gradtext"><?= $userCount ?></b><span>Users</span></div>
+      <div class="b"><b class="gradtext"><?= $memberCount ?></b><span>Members</span></div>
+      <div class="b"><b class="gradtext"><?= $enabledCount ?>/<?= count($apps) ?></b><span>Labs live</span></div>
+      <div class="b"><b class="gradtext"><?= count(CATALOG()) ?></b><span>Challenges</span></div>
+    </div>
+    <?php if ($snote): ?><div class="panel" style="margin-top:1rem;border-color:var(--accent-line);color:#7ee0a0">✓ <?= e($snote) ?></div><?php endif; ?>
+    <div class="panel" style="margin-top:1.4rem">
+      <h3 style="margin-top:0">Labs — turn any target on or off</h3>
+      <p style="color:var(--muted);margin-top:0;font-size:.9rem">Disabled labs disappear from every user's dashboard, challenges and assignments, and their pages become inaccessible.</p>
+      <form method="post"><input type="hidden" name="action" value="labs">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.7rem;margin-top:.6rem">
+        <?php foreach ($apps as $app): $on=lab_enabled($app); $m=$meta[$app]??['icon'=>'🔬','total'=>0]; ?>
+          <label style="display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;border:1px solid <?= $on?'var(--accent-line)':'var(--line)' ?>;border-radius:11px;background:<?= $on?'var(--accent-soft)':'var(--surface2)' ?>;cursor:pointer;text-transform:none;letter-spacing:0;margin:0">
+            <input type="checkbox" name="lab[]" value="<?= e($app) ?>" style="width:18px;height:18px" <?= $on?'checked':'' ?>>
+            <span style="font-size:1.4rem"><?= $m['icon'] ?></span>
+            <span style="flex:1"><b style="font-size:.95rem"><?= e($app) ?></b><br><span style="color:var(--dim);font-size:.76rem"><?= $m['total'] ?> challenges · <span style="color:<?= $on?'#7ee0a0':'#f3a09a' ?>"><?= $on?'LIVE':'OFF' ?></span></span></span>
+          </label>
+        <?php endforeach; ?>
+        </div>
+        <button class="btn" style="margin-top:1rem">Save lab configuration</button>
+      </form>
+    </div>
+    <?php foot(); exit;
+}
+
 $solved = solved_ids($u['email']);
 $assigned = assigned_ids($u['email']);
 $restricted = !is_admin_user() && !empty($assigned);   // member with a training plan → scope everything to it
-$catalog = CATALOG();
+$catalog = catalog_enabled();                            // hide any lab the superadmin turned off
 if ($restricted) $catalog = array_values(array_filter($catalog, fn($c)=>in_array($c[0],$assigned,true)));
 $vis = array_map(fn($c)=>$c[0], $catalog);
 $total = count($catalog); $done = count(array_intersect($solved,$vis));
@@ -48,7 +98,7 @@ head('Dashboard');
   </div>
 </div>
 
-<?php $myAssigned = assigned_ids($u['email']);
+<?php $myAssigned = array_values(array_filter(assigned_ids($u['email']), fn($id)=>($c=cat_by_id($id)) && lab_enabled($c[2])));
 if ($myAssigned): $adone = count(array_filter($myAssigned, fn($id)=>in_array($id,$solved,true))); ?>
 <div class="panel fadeup" style="margin-top:1.6rem;border-color:var(--accent-line)">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem">

@@ -48,6 +48,7 @@ th{color:#8496ad;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
 
 function bank_head(string $title, string $active='dashboard'): void {
     require_login();
+    lab_guard('Aurora Bank');
     $u = pf_user();
     $nav = ['dashboard'=>['🏠','Dashboard','/bank/'],'transfer'=>['💸','Transfer','/bank/transfer.php'],
             'statements'=>['📄','Statements','/bank/statements.php'],'cards'=>['💳','Cards','/bank/cards.php'],

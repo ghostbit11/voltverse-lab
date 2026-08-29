@@ -4,7 +4,7 @@ require_login();
 // the "client app" starts an OAuth flow — it generates a state and remembers it
 $state = substr(md5(session_id().'oauth'), 0, 12);
 $_SESSION['oauth_state'] = $state;
-$APP = ['ico'=>'🔑','name'=>'VoltConnect (OAuth SSO)'];
+$APP = ['ico'=>'🔑','name'=>'VoltConnect (OAuth SSO)','lab'=>'VoltConnect'];
 head('VoltConnect', $APP);
 ?>
 <div style="margin-bottom:1rem"><a href="/dashboard.php">← Apps</a></div>

@@ -139,7 +139,24 @@ function set_assignment(string $email, string $cid, bool $on): void {
 }
 function require_login(): void {
     if (!pf_user()) { header('Location: /login.php'); exit; }
+    // Accounts created by an admin must set their own password on first sign-in.
+    $cur = basename($_SERVER['SCRIPT_NAME'] ?? '');
+    if ($cur !== 'change_password.php' && setting('mustpw:'.pf_user()['email'], '0') === '1') {
+        header('Location: /change_password.php'); exit;
+    }
     siem_scan();
+}
+function must_change_password(?string $email = null): bool {
+    $email = $email ?? (pf_user()['email'] ?? '');
+    return $email !== '' && setting('mustpw:'.$email, '0') === '1';
+}
+
+/* ---- lab (app) on/off — controlled by the superadmin ---- */
+function lab_enabled(string $app): bool { return setting('lab:'.$app, '1') === '1'; }
+function lab_guard(string $app): void {
+    if (!pf_user()) return;
+    if (is_superadmin()) { header('Location: /dashboard.php'); exit; }   // superadmin configures, never solves
+    if (!lab_enabled($app)) { header('Location: /dashboard.php?off=' . rawurlencode($app)); exit; }
 }
 
 // ---- Blue-team SIEM: log suspicious requests automatically --------------

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../inc/site_layout.php';
-$cfg = ['brand'=>'VoltCorp','ico'=>'🌐','accent'=>'#0d9488','home'=>'/corp/','nav'=>[['Home','/corp/']],'cta'=>'Home','cta_href'=>'/corp/'];
+$cfg = ['brand'=>'VoltCorp','ico'=>'🌐','accent'=>'#0d9488','lab'=>'VoltCorp Website','home'=>'/corp/','nav'=>[['Home','/corp/']],'cta'=>'Home','cta_href'=>'/corp/'];
 $secure = lvl_secure();
 $email = $_REQUEST['email'] ?? '';
 $token = $_REQUEST['csrf'] ?? '';

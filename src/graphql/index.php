@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../inc/layout.php';
 require_login();
-$APP = ['ico'=>'📡','name'=>'VoltData (GraphQL API)'];
+$APP = ['ico'=>'📡','name'=>'VoltData (GraphQL API)','lab'=>'VoltData'];
 head('VoltData', $APP);
 ?>
 <div style="margin-bottom:1rem"><a href="/dashboard.php">← Apps</a></div>

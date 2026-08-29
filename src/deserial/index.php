@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['blob'])) {
     }
 }
 $sample = base64_encode(serialize(new VoltPrefs()));      // a legitimate export (role=user)
-$APP = ['ico'=>'🧩','name'=>'VoltSync (preferences)'];
+$APP = ['ico'=>'🧩','name'=>'VoltSync (preferences)','lab'=>'VoltSync'];
 head('VoltSync', $APP);
 ?>
 <div style="margin-bottom:1rem"><a href="/dashboard.php">← Apps</a></div>

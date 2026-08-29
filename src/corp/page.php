@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../inc/site_layout.php';
-$cfg = ['brand'=>'VoltCorp','ico'=>'🌐','accent'=>'#0d9488','home'=>'/corp/',
+$cfg = ['brand'=>'VoltCorp','ico'=>'🌐','accent'=>'#0d9488','lab'=>'VoltCorp Website','home'=>'/corp/',
         'nav'=>[['About','/corp/page.php?page=about'],['Careers','/corp/page.php?page=careers'],['Privacy','/corp/page.php?page=privacy'],['Contact','/corp/#contact']],
         'cta'=>'Contact us','cta_href'=>'/corp/#contact'];
 $content = [

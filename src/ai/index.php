@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../inc/layout.php';
 require_login();
-$APP = ['ico'=>'🤖','name'=>'Voltmart Copilot'];
+$APP = ['ico'=>'🤖','name'=>'Voltmart Copilot','lab'=>'Voltmart Copilot'];
 head('AI Copilot', $APP);
 ?>
 <style>

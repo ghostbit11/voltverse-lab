@@ -79,6 +79,7 @@ footer a{color:#c7d5ee}
 '; }
 
 function store_head(string $title): void {
+    lab_guard('Voltmart');
     $lv = level();
     $cart = json_decode($_COOKIE['st_cart'] ?? '{}', true) ?: [];
     $n = array_sum(array_map('intval', $cart));
