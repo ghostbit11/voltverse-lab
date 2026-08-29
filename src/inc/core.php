@@ -9,7 +9,7 @@ function db(): PDO {
     $fresh = !file_exists($path);
     $pdo = new PDO('sqlite:' . $path);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    if ($fresh) seed($pdo);
+    if ($fresh) { seed($pdo); @chmod($path, 0666); }   // ensure the web user (www-data) can always write
     return $pdo;
 }
 
@@ -93,6 +93,7 @@ function user_role(string $email): string {
     $r = $s->fetchColumn(); return $r ?: 'member';
 }
 function is_admin_user(): bool { $u = pf_user(); return $u && user_role($u['email']) === 'admin'; }
+function admin_exists(): bool { ensure_roles(); return (bool) db()->query("SELECT 1 FROM platform_users WHERE role='admin' LIMIT 1")->fetchColumn(); }
 function is_instructor(): bool { return is_admin_user(); }   // back-compat alias
 function has_any_user(): bool { return (bool) db()->query("SELECT 1 FROM platform_users LIMIT 1")->fetchColumn(); }
 function create_platform_user(string $email, string $name, string $pass, string $role = 'member'): void {

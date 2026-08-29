@@ -136,7 +136,7 @@ function nav_items(): array {
       ['SOC','/soc.php','<path d="M12 3l8 4v5c0 5-3.4 7.6-8 9-4.6-1.4-8-4-8-9V7z"/>'],
       ['Profile','/profile.php','<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'],
     ];
-    if (is_admin_user()) $items[] = ['Admin','/instructor.php','<path d="M3 7l9-4 9 4-9 4z"/><path d="M7 10v5c0 2 10 2 10 0v-5"/>'];
+    if (is_admin_user()) $items[] = ['Admin','/admin.php','<path d="M3 7l9-4 9 4-9 4z"/><path d="M7 10v5c0 2 10 2 10 0v-5"/>'];
     return $items;
 }
 
