@@ -4,7 +4,7 @@ require_once __DIR__ . '/core.php';
 /* Generic clean marketing/corporate website layout (used by microsite + corp site). */
 function site_head(string $title, array $cfg): void {
     require_login();
-    $accent = $cfg['accent'] ?? '#4f46e5';
+    $accent = '#4f46e5';   // unified VoltVerse brand accent across all apps
     $brand  = $cfg['brand'] ?? 'Website';
     $ico    = $cfg['ico'] ?? '🌐';
     $home   = $cfg['home'] ?? '/';
@@ -27,7 +27,7 @@ main{max-width:1120px;margin:0 auto;padding:0 2rem}
 .hero .eyebrow{color:var(--acc);font-weight:700;letter-spacing:2px;font-size:.72rem;text-transform:uppercase}
 .hero h1{font-size:3rem;font-weight:900;letter-spacing:-1.5px;margin:.8rem 0;line-height:1.05}
 .hero p{color:#64748b;font-size:1.15rem;max-width:620px;margin:0 auto}
-.btn{display:inline-block;background:var(--acc);color:#fff;border:0;border-radius:12px;padding:.8rem 1.5rem;font-weight:700;cursor:pointer;font-size:1rem}
+.btn{display:inline-block;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:.72rem 1.35rem;font-weight:700;cursor:pointer;font-size:.95rem}
 .btn.ghost{background:#fff;color:var(--acc);border:1px solid #dbe1ee}
 .feats{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;margin:2rem 0}
 .feat{border:1px solid #eef1f6;border-radius:16px;padding:1.6rem;background:#fbfcfe}
@@ -41,12 +41,12 @@ main{max-width:1120px;margin:0 auto;padding:0 2rem}
 pre{white-space:pre-wrap;background:#0b1020;color:#93c5fd;padding:1rem;border-radius:10px;overflow:auto;font-size:.82rem}
 footer{background:#0b1220;color:#8fa1bd;margin-top:3rem;padding:2rem;text-align:center;font-size:.82rem}footer a{color:#c7d5ee}
 </style></head><body>
-<div class="strip">🔒 ' . e($brand) . ' — a Voltmart company <span class="sp"><a href="/dashboard.php">← All apps</a> · Difficulty: <a href="/level.php">' . strtoupper($lv) . '</a></span></div>
+<div class="strip">🔒 ' . e($brand) . ' — part of the VoltVerse group <span class="sp"><a href="/dashboard.php">← All apps</a> · Difficulty: <a href="/level.php">' . strtoupper($lv) . '</a></span></div>
 <div class="nav"><a class="brand" href="' . e($home) . '"><span class="mk">' . $ico . '</span>' . e($brand) . '</a>
 <div class="links">';
     foreach ($nav as [$lbl,$href]) echo '<a href="' . e($href) . '">' . e($lbl) . '</a>';
     echo '</div><a class="cta" href="' . e($cfg['cta_href'] ?? $home) . '">' . e($cfg['cta'] ?? 'Get started') . '</a></div><main>';
 }
 function site_foot(string $brand): void {
-    echo '</main><footer>© ' . e($brand) . ' · a Voltmart company · <a href="/dashboard.php">BREACHR range</a></footer></body></html>';
+    echo '</main><footer>© ' . e($brand) . ' · part of the VoltVerse group · <a href="/dashboard.php">← All apps</a></footer></body></html>';
 }

@@ -105,8 +105,8 @@ function store_head(string $title): void {
 }
 
 function store_foot(): void {
-    echo '</main><footer>© Voltmart — a Voltmart Retail company · Powered by the BREACHR range ·
-      <a href="/dashboard.php">Apps</a> · <a href="/level.php">Difficulty</a></footer></body></html>';
+    echo '</main><footer>© Voltmart Retail — part of the VoltVerse group ·
+      <a href="/dashboard.php">← All apps</a> · <a href="/level.php">Difficulty</a></footer></body></html>';
 }
 
 function mrp($price){ return round($price * 1.35); }
