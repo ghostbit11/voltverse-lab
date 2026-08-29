@@ -35,9 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$iAmSuper) $rl = 'member';                         // admins can only create members
         if (!in_array($rl, ['member','admin'], true)) $rl = 'member';
         if (!$cem || !$pw) { $note = 'Email and password are required.'; $noteBad = true; }
-        else { try { create_platform_user($cem, $nm, $pw, $rl); set_setting('mustpw:'.$cem, '1');
-                     $note = "Created $rl account for $cem. They'll set their own password on first sign-in."; }
+        else { try { create_platform_user($cem, $nm, $pw, $rl, $me['email']); set_setting('mustpw:'.$cem, '1');
+                     $note = "Created $rl account for $cem. They'll set their own password on first sign-in.";
+                     if ($rl === 'member') $createdEmail = $cem; }
                catch (Throwable $e) { $note = 'That email is already registered.'; $noteBad = true; } }
+    } elseif ($act === 'org') {
+        set_org_name($me['email'], trim($_POST['org'] ?? '') ?: 'VoltVerse');
+        $note = 'Organisation name saved.';
     } elseif ($act === 'reset' && $em && $manage) {
         db()->prepare("DELETE FROM solves WHERE player=?")->execute([$em]);
         db()->prepare("DELETE FROM hint_unlocks WHERE player=?")->execute([$em]);
@@ -73,9 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $wtOn = setting('walkthroughs_enabled','1')==='1';
 $hintsOn = setting('hints_enabled','1')==='1';
 $openOn = setting('open_signup','1')==='1';
-$players = db()->query("SELECT id,email,name,role FROM platform_users ORDER BY CASE role WHEN 'superadmin' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, id")->fetchAll(PDO::FETCH_ASSOC);
-// A regular admin only sees their team (members) + themselves — never the superadmin or other admins.
-if (!$iAmSuper) $players = array_values(array_filter($players, fn($p)=>$p['role']==='member' || $p['email']===$me['email']));
+$players = db()->query("SELECT id,email,name,role,created_by FROM platform_users ORDER BY CASE role WHEN 'superadmin' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, id")->fetchAll(PDO::FETCH_ASSOC);
+// A regular admin only sees the users THEY created + themselves — not the superadmin or other admins' people.
+if (!$iAmSuper) $players = array_values(array_filter($players, fn($p)=>$p['created_by']===$me['email'] || $p['email']===$me['email']));
+$myOrg = setting('org:'.$me['email'], 'VoltVerse');
 $totSolves = (int)db()->query("SELECT COUNT(*) FROM solves")->fetchColumn();
 $active = (int)db()->query("SELECT COUNT(DISTINCT player) FROM solves")->fetchColumn();
 $act = $_POST['action'] ?? '';
@@ -98,7 +103,8 @@ head('Admin');
   <h1 style="font-size:1.7rem"><?= $iAmSuper ? 'Manage the lab' : 'Team & content' ?></h1>
   <p><?= $iAmSuper ? 'Full control over every user, role, password and setting across the lab.' : 'Add members, assign tests, control learning aids, and track your team\'s progress.' ?></p>
 </div>
-<?php if ($note): ?><div class="panel" style="margin-top:1rem;border-color:<?= $noteBad?'rgba(242,86,75,.4)':'var(--accent-line)' ?>;color:<?= $noteBad?'#f3a09a':'#9db8ff' ?>"><?= e($note) ?></div><?php endif; ?>
+<?php if ($note): ?><div class="panel" style="margin-top:1rem;border-color:<?= $noteBad?'rgba(242,86,75,.4)':'var(--accent-line)' ?>;color:<?= $noteBad?'#f3a09a':'#9db8ff' ?>"><?= e($note) ?>
+  <?php if (!empty($createdEmail)): ?> &nbsp;<a href="/admin.php?assign=<?= urlencode($createdEmail) ?>#assign" style="font-weight:600">Assign their tests →</a><?php endif; ?></div><?php endif; ?>
 
 <div class="stat" style="margin-top:1.2rem">
   <div class="b"><b class="gradtext"><?= count($players) ?></b><span>Users</span></div>
@@ -107,7 +113,16 @@ head('Admin');
   <div class="b"><b class="gradtext"><?= $total ?></b><span>Challenges</span></div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.4rem">
+<div class="panel" style="margin-top:1.4rem;display:flex;align-items:end;gap:1rem;flex-wrap:wrap">
+  <form method="post" style="display:flex;align-items:end;gap:.6rem;flex-wrap:wrap;flex:1"><input type="hidden" name="action" value="org">
+    <div style="flex:1;min-width:220px"><label style="margin-top:0">Your organisation name</label>
+      <input name="org" value="<?= e($myOrg) ?>" placeholder="Acme Security Team"></div>
+    <button class="btn">Save name</button>
+  </form>
+  <span style="color:var(--dim);font-size:.82rem;max-width:280px">Shown on your team's leaderboard and on the certificates your members earn.</span>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
   <div class="panel" style="margin:0">
     <h3 style="margin-top:0">Content controls <span style="color:var(--dim);font-size:.78rem;font-weight:400">· workspace default</span></h3>
     <p style="color:var(--muted);margin-top:0;font-size:.88rem">Default for all members. Override per-member from their profile view.</p>

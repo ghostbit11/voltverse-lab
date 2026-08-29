@@ -92,6 +92,7 @@ head('Profile');
   </div>
 </div>
 
+<?php if (!is_superadmin()): $org = org_name($u['email']); ?>
 <h2 style="margin:2rem 0 1rem;font-size:1.3rem">🎓 Certificate of completion</h2>
 <div id="cert" style="background:linear-gradient(135deg,#0b1224,#111a33);border:2px solid #22d3ee;border-radius:18px;padding:2.4rem;position:relative;overflow:hidden">
   <div style="position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,rgba(34,211,238,.14),transparent 40%);pointer-events:none"></div>
@@ -103,7 +104,7 @@ head('Profile');
     <p style="color:var(--muted);max-width:560px;margin:.4rem auto">has completed <b style="color:#fff"><?= $done ?></b> of <b style="color:#fff"><?= $total ?></b> security challenges
       (<?= $pct ?>%), earning <b style="color:#fff"><?= $pts ?></b> points and the rank of <b style="color:#fff"><?= e($tier) ?></b>.</p>
     <div style="display:flex;justify-content:space-between;max-width:560px;margin:1.6rem auto 0;font-size:.78rem;color:var(--dim)">
-      <div style="text-align:left"><div style="color:#fff;border-top:1px solid var(--line);padding-top:.3rem">VoltVerse Training</div>Issuing authority</div>
+      <div style="text-align:left"><div style="color:#fff;border-top:1px solid var(--line);padding-top:.3rem"><?= e($org) ?></div>Issuing authority</div>
       <div style="text-align:right"><div style="color:#fff;border-top:1px solid var(--line);padding-top:.3rem">ID: VV-<?= strtoupper(substr(md5($u['email']),0,8)) ?></div>Verification</div>
     </div>
   </div>
@@ -112,4 +113,5 @@ head('Profile');
   <button class="btn" style="margin-left:.5rem" onclick="window.print()">🖨 Print</button>
   <a class="btn" href="/leaderboard.php" style="margin-left:.5rem">View leaderboard →</a></div>
 <style>@media print{.nav,.cta,.btn,#bg,canvas{display:none!important}body{background:#fff}#cert{border-color:#0b1224}}</style>
+<?php endif; ?>
 <?php foot();

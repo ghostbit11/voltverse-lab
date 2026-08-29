@@ -88,6 +88,7 @@ function ensure_roles(): void {
     try {
         $cols = array_column(db()->query("PRAGMA table_info(platform_users)")->fetchAll(PDO::FETCH_ASSOC), 'name');
         if (!in_array('role', $cols, true)) db()->exec("ALTER TABLE platform_users ADD COLUMN role TEXT DEFAULT 'member'");
+        if (!in_array('created_by', $cols, true)) db()->exec("ALTER TABLE platform_users ADD COLUMN created_by TEXT DEFAULT ''");
         db()->exec("UPDATE platform_users SET role='member' WHERE role IS NULL OR role=''");
         // guarantee exactly one super administrator: the earliest account
         if (!db()->query("SELECT 1 FROM platform_users WHERE role='superadmin' LIMIT 1")->fetchColumn())
@@ -104,11 +105,22 @@ function is_admin_user(): bool { $u = pf_user(); return $u && in_array(user_role
 function admin_exists(): bool { ensure_roles(); return (bool) db()->query("SELECT 1 FROM platform_users WHERE role IN('admin','superadmin') LIMIT 1")->fetchColumn(); }
 function is_instructor(): bool { return is_admin_user(); }   // back-compat alias
 function has_any_user(): bool { return (bool) db()->query("SELECT 1 FROM platform_users LIMIT 1")->fetchColumn(); }
-function create_platform_user(string $email, string $name, string $pass, string $role = 'member'): void {
+function create_platform_user(string $email, string $name, string $pass, string $role = 'member', string $createdBy = ''): void {
     ensure_roles();
-    db()->prepare("INSERT INTO platform_users(email,pass,name,role) VALUES(?,?,?,?)")
-        ->execute([$email, password_hash($pass, PASSWORD_DEFAULT), $name ?: $email, $role]);
+    db()->prepare("INSERT INTO platform_users(email,pass,name,role,created_by) VALUES(?,?,?,?,?)")
+        ->execute([$email, password_hash($pass, PASSWORD_DEFAULT), $name ?: $email, $role, $createdBy]);
 }
+/* ---- organisations (each admin/superadmin owns an org; members belong to their creator's org) ---- */
+function created_by(string $email): string {
+    $s = db()->prepare("SELECT created_by FROM platform_users WHERE email=?"); $s->execute([$email]);
+    return (string)($s->fetchColumn() ?: '');
+}
+function org_owner(string $email): string {
+    if (user_role($email) === 'member') { $cb = created_by($email); return $cb ?: $email; }
+    return $email;                       // admins / superadmin own their own org
+}
+function org_name(string $email): string { return setting('org:'.org_owner($email), 'VoltVerse'); }
+function set_org_name(string $ownerEmail, string $name): void { set_setting('org:'.$ownerEmail, $name); }
 function set_user_password(string $email, string $pw): void {
     db()->prepare("UPDATE platform_users SET pass=? WHERE email=?")->execute([password_hash($pw, PASSWORD_DEFAULT), $email]);
 }
@@ -155,7 +167,7 @@ function must_change_password(?string $email = null): bool {
 function lab_enabled(string $app): bool { return setting('lab:'.$app, '1') === '1'; }
 function lab_guard(string $app): void {
     if (!pf_user()) return;
-    if (is_superadmin()) { header('Location: /dashboard.php'); exit; }   // superadmin configures, never solves
+    if (is_superadmin()) return;                 // superadmin may open any lab (even disabled) to test it
     if (!lab_enabled($app)) { header('Location: /dashboard.php?off=' . rawurlencode($app)); exit; }
 }
 

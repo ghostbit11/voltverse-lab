@@ -102,15 +102,20 @@ function player_points(string $email): int {
     } catch (Throwable $e) { /* hint_unlocks table not created yet */ }
     return max(0, $p);
 }
-function leaderboard(int $n=20): array {
+function leaderboard(int $n=20, ?string $orgOwner=null): array {
     ensure_solves();
-    $rows = db()->query("SELECT p.email,p.name FROM platform_users p")->fetchAll(PDO::FETCH_ASSOC);
-    $out=[]; foreach ($rows as $r){ $ids=solved_ids($r['email']); if(!$ids)continue; $out[]=['name'=>$r['name'],'email'=>$r['email'],'solved'=>count($ids),'points'=>player_points($r['email'])]; }
+    $rows = db()->query("SELECT email,name,role FROM platform_users")->fetchAll(PDO::FETCH_ASSOC);
+    $out=[]; foreach ($rows as $r){
+        if ($r['role']==='superadmin') continue;                               // operator — not a competitor
+        if ($orgOwner !== null && org_owner($r['email']) !== $orgOwner) continue; // scope to one organisation
+        $ids=solved_ids($r['email']); if(!$ids)continue;
+        $out[]=['name'=>$r['name'],'email'=>$r['email'],'solved'=>count($ids),'points'=>player_points($r['email'])];
+    }
     usort($out, fn($a,$b)=>$b['points']<=>$a['points']);
     return array_slice($out,0,$n);
 }
 function player_rank(string $email): int {
-    $lb = leaderboard(9999); foreach ($lb as $i=>$r) if ($r['email']===$email) return $i+1; return count($lb)+1;
+    $lb = leaderboard(9999, org_owner($email)); foreach ($lb as $i=>$r) if ($r['email']===$email) return $i+1; return count($lb)+1;
 }
 function player_streak(string $email): int {
     ensure_solves();

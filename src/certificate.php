@@ -3,6 +3,8 @@ require_once __DIR__ . '/inc/layout.php';
 require_once __DIR__ . '/inc/catalog.php';
 require_login();
 $u = pf_user();
+if (is_superadmin()) { header('Location: /profile.php'); exit; }   // superadmins don't earn certificates
+$org = org_name($u['email']);
 $all = CATALOG(); $total = count($all);
 $done = count(solved_ids($u['email']));
 $pts = player_points($u['email']);
@@ -26,7 +28,7 @@ $C .= $centered('F2',13,395,'This certifies that',0.4,0.45,0.52);
 $C .= $centered('F1',30,345,$u['name'],0.10,0.28,0.62);
 $C .= $centered('F2',13,300,"has completed $done of $total security challenges ($pct%),",0.30,0.35,0.42);
 $C .= $centered('F2',13,280,"earning $pts points and the rank of $tier.",0.30,0.35,0.42);
-$C .= "BT /F2 10 Tf 0.55 0.60 0.66 rg 1 0 0 1 90 150 Tm (VoltVerse Training  -  Issuing authority) Tj ET\n";
+$C .= sprintf("BT /F2 10 Tf 0.55 0.60 0.66 rg 1 0 0 1 90 150 Tm (%s  -  Issuing authority) Tj ET\n", $esc($org));
 $C .= sprintf("BT /F2 10 Tf 0.55 0.60 0.66 rg 1 0 0 1 560 150 Tm (Certificate ID: %s) Tj ET\n", $esc($id));
 $C .= $centered('F2',11,110,"Issued $date",0.45,0.50,0.56);
 

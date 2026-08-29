@@ -3,14 +3,16 @@ require_once __DIR__ . '/inc/layout.php';
 require_once __DIR__ . '/inc/catalog.php';
 require_login();
 $u = pf_user();
-$lb = leaderboard(50);
+$scope = is_superadmin() ? null : org_owner($u['email']);   // members/admins see only their org
+$lb = leaderboard(50, $scope);
 $total = count(CATALOG());
+$orgLabel = $scope === null ? 'All organisations' : org_name($u['email']);
 head('Leaderboard');
 ?>
 <div class="hero fadeup" style="padding:2rem 2.4rem">
-  <span class="eyebrow">🏆 Global leaderboard</span>
-  <h1 style="font-size:2rem">Top hackers on the range</h1>
-  <p>Earn points by capturing flags. <?= count($lb) ?> players have scored so far.</p>
+  <span class="eyebrow">🏆 <?= e($orgLabel) ?> · leaderboard</span>
+  <h1 style="font-size:2rem">Top hackers<?= $scope===null?' on the range':'' ?></h1>
+  <p>Earn points by capturing flags. <?= count($lb) ?> player<?= count($lb)===1?'':'s' ?> <?= $scope===null?'have':'in your team have' ?> scored so far.</p>
 </div>
 <div class="panel" style="margin-top:1.4rem;padding:0;overflow:hidden">
   <table style="width:100%;border-collapse:collapse">
