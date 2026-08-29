@@ -58,6 +58,20 @@ Open **http://localhost:8100** and sign up — the **first** account automatical
 
 See **[CHALLENGES.md](CHALLENGES.md)** for the full, auto-generated list of all 48 challenges.
 
+## 🖼 A look inside
+
+The **platform** is a dark, professional operator console — while every **target app** looks like a real product (an online store, a bank, a corporate site, a GraphQL explorer…). That contrast is deliberate: you practise on things that feel real.
+
+<p align="center">
+  <img src="assets/ui-platform.svg" alt="VoltVerse trainee dashboard" width="100%"/>
+  <br/><sub><em>Trainee dashboard — live targets, points, rank, day-streak and the daily challenge.</em></sub>
+</p>
+
+<p align="center">
+  <img src="assets/ui-store.svg" alt="Voltmart — a realistic e-commerce target app" width="100%"/>
+  <br/><sub><em>Voltmart — one of 11 realistic target apps. It looks like a real store; it's riddled with OWASP bugs.</em></sub>
+</p>
+
 ## 🧠 Learning layer
 
 - **🚩 Flag capture & scoring** — exploit a bug, submit its `VOLT{...}` flag, earn points, first-blood, day-streaks and a daily challenge.
