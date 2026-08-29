@@ -26,8 +26,8 @@
 
 VoltVerse (codename **BREACHR**) packs the **OWASP Web Top 10**, **API Top 10**, and **LLM Top 10** into
 one polished, self-contained platform — with flags, scoring, a leaderboard, progressive hints,
-difficulty-aware walkthroughs, cross-app attack campaigns, an instructor console, and an
-auto-detecting blue-team SOC. One PHP + Apache + SQLite container. One command to run.
+difficulty-aware walkthroughs, cross-app attack campaigns, a multi-tenant role-based admin console,
+and an auto-detecting blue-team SOC. One PHP + Apache + SQLite container. One command to run.
 
 ## 🚀 Quick start
 
@@ -37,8 +37,8 @@ cd voltverse-lab
 docker compose up -d --build
 ```
 
-Open **http://localhost:8100**, sign up, and start hacking.
-The **first** account you register automatically becomes the **instructor**.
+Open **http://localhost:8100** and sign up — the **first** account automatically becomes the
+**super administrator** (lab owner). See [Roles](#-roles-multi-tenant) to set up admins and members.
 
 ## 🎯 What's inside
 
@@ -60,12 +60,12 @@ See **[CHALLENGES.md](CHALLENGES.md)** for the full, auto-generated list of all 
 
 ## 🧠 Learning layer
 
-- **🚩 Flag capture & scoring** — exploit a bug, submit its `VOLT{...}` flag, earn points & first-blood.
-- **🏆 Leaderboard & profile** — ranks, skill breakdown, and a printable completion certificate.
+- **🚩 Flag capture & scoring** — exploit a bug, submit its `VOLT{...}` flag, earn points, first-blood, day-streaks and a daily challenge.
+- **🏆 Leaderboard & profile** — org-scoped ranks, skill breakdown, and a downloadable PDF certificate stamped with the member's organisation.
 - **💡 Hints & 📖 walkthroughs** — progressive hints (small point cost) and **difficulty-aware**
-  step-by-step solutions. Both toggle per-cohort from the instructor console.
+  step-by-step solutions. Toggle from the admin console — globally or per member.
 - **⛓️ Campaigns** — chain individual bugs across apps into realistic breach scenarios.
-- **🎓 Instructor console** — cohort progress, per-challenge landing rate, content controls, account resets.
+- **🎓 Admin console** — create users, assign specific tests, set your org name, toggle learning aids, track progress and export scores to CSV. The super admin turns whole labs on/off and resets shared lab state.
 - **🛡️ Blue-team SOC** — attacks are auto-detected and surfaced on a live SIEM dashboard.
 
 ## 🏗 Architecture
@@ -79,7 +79,7 @@ flowchart LR
     F --> S[(SQLite<br/>scores · solves · hints)]
     F --> L[Leaderboard / Profile]
     T -.request signatures.-> SOC[🛡️ Blue-team SOC / SIEM]
-    I[🎓 Instructor console] --> S
+    I[🎓 Admin console] --> S
     classDef c fill:#0d1426,stroke:#22d3ee,color:#e2e8f0;
     class P,D,T,F,S,L,SOC,I c;
 ```
