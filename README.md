@@ -102,6 +102,30 @@ Inspired by bWAPP — every vulnerability scales:
 
 **PHP 8.2** · **Apache** · **SQLite** · **Docker / docker-compose**. No external services, no API keys, no internet required at runtime.
 
+## 👥 Roles (multi-tenant)
+
+The first account you register becomes the **super administrator** (lab owner). From there:
+
+| Role | Can do |
+|------|--------|
+| 👑 **Super admin** | Turn any lab on/off, manage every user, reset any password, reset shared lab data. Configures (doesn't compete); can open any lab to test it. |
+| 🛡 **Admin** (e.g. a team manager) | Set an **organisation name**, create their own members, assign specific tests, toggle hints/walkthroughs, view scores, export CSV. Sees **only their own users**, isolated from other orgs. |
+| 👤 **Member** | Solves the tests assigned to them; earns points and a certificate stamped with their org's name. |
+
+Turn off **open self-registration** (Admin console) so only admins provision accounts. Admin-created users are forced to set their own password on first sign-in.
+
+## 🛠 Operations & deployment
+
+- **Data persistence** — user accounts, scores and settings live in a named Docker volume (`voltverse_data`), so they **survive `docker compose up --build`**. ⚠️ `docker compose down -v` **deletes the volume and all user data** — use plain `docker compose down` to stop.
+- **Backups** — snapshot the database anytime:
+  ```bash
+  ./backup.sh            # or:  ./backup.ps1   (Windows)   → backups/voltverse_<timestamp>.db
+  ./restore.sh backups/voltverse_<timestamp>.db   # or ./restore.ps1 -File ...
+  ```
+  Schedule `backup.sh` (cron / Task Scheduler) before running a cohort.
+- **Reset shared lab state** — the target apps use shared demo accounts, so trainee-injected data (stored-XSS reviews, changed profile names, extra orders, altered balances) is visible to everyone. The super admin's dashboard has a **“Reset lab data”** button that restores the demo data without touching any scores. Run it between cohorts. *(Per-user app sandboxing is a future enhancement — for large concurrent classes, have trainees work an app in turn or reset between sessions.)*
+- **Deployment** — this app is **intentionally vulnerable**. Never expose it to the public internet. Run it on `localhost` or an internal/VPN-only network; if teammates need access, front it with a reverse proxy that requires its own authentication.
+
 ## 📜 License
 
 [MIT](LICENSE) — for **education and authorized security training only**. Keep it off the public internet (see the warning above).

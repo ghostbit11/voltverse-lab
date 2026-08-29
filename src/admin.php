@@ -113,13 +113,16 @@ head('Admin');
   <div class="b"><b class="gradtext"><?= $total ?></b><span>Challenges</span></div>
 </div>
 
-<div class="panel" style="margin-top:1.4rem;display:flex;align-items:end;gap:1rem;flex-wrap:wrap">
+<div class="panel" style="margin-top:1.4rem;<?= $myOrg==='VoltVerse'?'border-color:rgba(224,165,46,.4)':'' ?>">
+  <?php if ($myOrg === 'VoltVerse'): ?><div style="color:#ecc46b;font-size:.86rem;margin-bottom:.7rem">⚠ Set your organisation name — it appears on your team's leaderboard and on the certificates your members earn.</div><?php endif; ?>
+  <div style="display:flex;align-items:end;gap:1rem;flex-wrap:wrap">
   <form method="post" style="display:flex;align-items:end;gap:.6rem;flex-wrap:wrap;flex:1"><input type="hidden" name="action" value="org">
     <div style="flex:1;min-width:220px"><label style="margin-top:0">Your organisation name</label>
       <input name="org" value="<?= e($myOrg) ?>" placeholder="Acme Security Team"></div>
     <button class="btn">Save name</button>
   </form>
   <span style="color:var(--dim);font-size:.82rem;max-width:280px">Shown on your team's leaderboard and on the certificates your members earn.</span>
+  </div>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
@@ -148,7 +151,10 @@ head('Admin');
 </div>
 
 <div class="panel" style="margin-top:1.4rem">
-  <h3 style="margin-top:0">Users</h3>
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+    <h3 style="margin:0">Users</h3>
+    <a class="btn ghost" href="/export.php" style="padding:.4rem .9rem;font-size:.82rem">⬇ Export scores (CSV)</a>
+  </div>
   <div style="overflow:auto"><table style="width:100%;border-collapse:collapse">
     <tr style="text-align:left;color:var(--dim);font-size:.74rem;text-transform:uppercase;letter-spacing:.05em">
       <th style="padding:.5rem">User</th><th>Role</th><th>Points</th><th>Solved</th><th>Assigned</th><th>Progress</th><th style="text-align:right">Actions</th></tr>

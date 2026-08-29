@@ -12,6 +12,9 @@ if (is_superadmin()) {
         $on = $_POST['lab'] ?? [];
         foreach ($apps as $app) set_setting('lab:'.$app, in_array($app, $on, true) ? '1' : '0');
         $snote = 'Lab configuration saved.';
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset_labs') {
+        reset_lab_data();
+        $snote = 'Lab data reset — trainee-injected reviews, names, orders and balances cleared.';
     }
     $meta = cat_apps();
     $enabledCount = count(array_filter($apps, 'lab_enabled'));
@@ -49,6 +52,11 @@ if (is_superadmin()) {
         </div>
         <button class="btn" style="margin-top:1rem">Save lab configuration</button>
       </form>
+    </div>
+    <div class="panel" style="margin-top:1.4rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;border-color:rgba(224,165,46,.35)">
+      <div><h3 style="margin:0">🧹 Reset lab data</h3>
+        <p style="color:var(--muted);margin:.3rem 0 0;font-size:.9rem;max-width:560px">Clears anything trainees injected into the target apps (stored XSS in reviews / profile names, extra orders, changed bank balances) and restores the demo data. Player scores and accounts are untouched.</p></div>
+      <form method="post" onsubmit="return confirm('Reset all target-app data to defaults? Player scores are kept.')"><input type="hidden" name="action" value="reset_labs"><button class="btn" style="background:var(--amber);color:#1a1204">Reset lab data</button></form>
     </div>
     <?php foot(); exit;
 }

@@ -5,6 +5,10 @@ src/data/
 src/store/uploads/*
 !src/store/uploads/.gitkeep
 
+# Database snapshots / backups (contain real user data — never commit)
+*.db
+backups/
+
 # OS / editor
 .DS_Store
 Thumbs.db

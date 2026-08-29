@@ -1,4 +1,4 @@
-# VoltVerse Store — one self-contained vulnerable web app (VoltMart-style).
+# VoltVerse — one self-contained cyber range (11 vulnerable apps + platform).
 #   docker compose up -d --build   →   http://localhost:8100
 services:
   store:
@@ -8,3 +8,10 @@ services:
     ports:
       - "8100:80"
     restart: unless-stopped
+    volumes:
+      # Persist the platform database (users, scores, settings) across rebuilds.
+      # WARNING: `docker compose down -v` deletes this volume and ALL user data.
+      - voltverse_data:/var/www/html/data
+
+volumes:
+  voltverse_data:

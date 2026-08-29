@@ -26,6 +26,11 @@ function seed(PDO $pdo): void {
     CREATE TABLE accounts (id INTEGER PRIMARY KEY, owner TEXT, holder TEXT, number TEXT, balance REAL, secret TEXT);
     CREATE TABLE txns (id INTEGER PRIMARY KEY, account_id INTEGER, descr TEXT, amount REAL, ts TEXT);
     ");
+    seed_lab_data($pdo);
+}
+
+/* The store/bank demo data — re-runnable so the superadmin can reset shared lab state. */
+function seed_lab_data(PDO $pdo): void {
     // store data
     $pdo->exec("INSERT INTO users(email,password,name,is_admin,secret) VALUES
       ('customer@volt.local','password123','Alex Customer',0,NULL),
@@ -54,6 +59,17 @@ function seed(PDO $pdo): void {
       (5002,'admin@volt.local','VoltCorp Treasury','VV-5002',999999.00,'VOLT{bank_idor_treasury}')");
     $pdo->exec("INSERT INTO txns(account_id,descr,amount,ts) VALUES
       (5001,'Salary',5000,'2026-08-01'),(5001,'Grocery',-320,'2026-08-03'),(5001,'ATM',-480,'2026-08-05')");
+}
+
+/* Reset the shared vulnerable-app data back to seed state (reviews, profile names, orders,
+   balances, txns) — clears anything trainees injected. Does NOT touch platform accounts,
+   scores, assignments, settings or the difficulty level. */
+function reset_lab_data(): void {
+    $pdo = db();
+    foreach (['reviews','order_items','orders','users','products','txns','accounts'] as $t) {
+        try { $pdo->exec("DELETE FROM $t"); } catch (Throwable $e) {}
+    }
+    seed_lab_data($pdo);
 }
 
 // ---- difficulty level (bWAPP style) ---------------------------------------
